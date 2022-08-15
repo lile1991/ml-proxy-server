@@ -1,21 +1,15 @@
 package io.ml.proxy.server;
 
 import io.ml.proxy.server.config.ProxyServerConfig;
-import io.ml.proxy.server.handler.ChannelRegisterHandler;
 import io.ml.proxy.server.handler.ProxyUnificationServerHandler;
 import io.netty.bootstrap.ServerBootstrap;
 import io.netty.channel.Channel;
 import io.netty.channel.ChannelInitializer;
 import io.netty.channel.nio.NioEventLoopGroup;
 import io.netty.channel.socket.nio.NioServerSocketChannel;
-import io.netty.handler.logging.LoggingHandler;
 import io.netty.handler.timeout.IdleStateHandler;
-import io.netty.handler.traffic.ChannelTrafficShapingHandler;
-import io.netty.handler.traffic.TrafficCounter;
 import lombok.extern.slf4j.Slf4j;
 
-import javax.net.ssl.SSLException;
-import java.security.cert.CertificateException;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 @Slf4j
