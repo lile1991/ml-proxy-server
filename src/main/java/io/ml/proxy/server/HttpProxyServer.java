@@ -1,12 +1,17 @@
 package io.ml.proxy.server;
 
 import io.ml.proxy.server.config.ProxyServerConfig;
+import io.ml.proxy.server.handler.ChannelRegisterHandler;
 import io.ml.proxy.server.handler.ProxyUnificationServerHandler;
 import io.netty.bootstrap.ServerBootstrap;
 import io.netty.channel.Channel;
 import io.netty.channel.ChannelInitializer;
 import io.netty.channel.nio.NioEventLoopGroup;
 import io.netty.channel.socket.nio.NioServerSocketChannel;
+import io.netty.handler.logging.LoggingHandler;
+import io.netty.handler.timeout.IdleStateHandler;
+import io.netty.handler.traffic.ChannelTrafficShapingHandler;
+import io.netty.handler.traffic.TrafficCounter;
 import lombok.extern.slf4j.Slf4j;
 
 import javax.net.ssl.SSLException;
@@ -36,17 +41,21 @@ public class HttpProxyServer {
         } else {
             log.debug("Relay server bind to port: {}, proxy protocol: {}, relay protocol: {}", serverConfig.getPort(), serverConfig.getProxyProtocols(), serverConfig.getRelayServerConfig().getRelayProtocol());
         }
+
+        GlobalChannelManage globalChannelManage = new GlobalChannelManage();
         serverBootstrap.group(bossGroup, workerGroup)
                 .channel(NioServerSocketChannel.class)
                 // .handler(new LoggingHandler(LogLevel.INFO))
                 .childHandler(new ChannelInitializer<Channel>() {
                     @Override
-                    protected void initChannel(Channel ch) throws CertificateException, SSLException {
+                    protected void initChannel(Channel ch) {
                         ch.pipeline()
                             // .addLast(new LoggingHandler())
-                                // Time out process
-                            // .addLast(new IdleStateHandler(3, 30, 0))
-                            .addLast(new ProxyUnificationServerHandler(serverConfig));
+                            // .addLast(new ChannelRegisterHandler(globalChannelManage))
+                            // .addLast(new ChannelTrafficShapingHandler(0, 0, 15 * 1000))
+                            .addLast(new IdleStateHandler(3, 30, 0))
+                            .addLast(new ProxyUnificationServerHandler(serverConfig))
+                        ;
                     }
                 }).bind(serverConfig.getPort());
     }
