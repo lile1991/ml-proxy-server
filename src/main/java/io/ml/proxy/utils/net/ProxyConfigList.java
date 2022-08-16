@@ -4,10 +4,10 @@ import io.ml.proxy.server.config.ProxyProtocolEnum;
 import io.ml.proxy.utils.io.IOUtils;
 import lombok.extern.slf4j.Slf4j;
 
+import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
@@ -18,9 +18,9 @@ public class ProxyConfigList {
     private static final Random RANDOM = new Random();
 
     static {
-        URL resource = ProxyConfigList.class.getResource("/proxy/socks5_us.txt");
-        if(resource != null) {
-            try (InputStream resourceAsStream = new FileInputStream(resource.getFile())) {
+        File socks5File = new File("proxy/socks5_us.txt");
+        if(socks5File != null) {
+            try (InputStream resourceAsStream = new FileInputStream(socks5File)) {
                 List<String> socks5ProxyList = IOUtils.readLines(resourceAsStream, "UTF-8");
                 socks5ProxyList.forEach(socks5Proxy -> {
                     String[] split = socks5Proxy.split(":");
@@ -33,7 +33,7 @@ public class ProxyConfigList {
                     PROXY_LIST.add(proxy);
                 });
             } catch (IOException e) {
-                log.error("初始化代理IP异常", e);
+                log.error("Initial proxy IP exception", e);
             }
         }
     }

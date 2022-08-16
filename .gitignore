@@ -1,4 +1,4 @@
 .idea
 *.iml
 target
-src/main/resources/proxy/socks5_us.txt
+socks5_us.txt
