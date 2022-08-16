@@ -40,7 +40,7 @@ public class HttpProxyRelayServer {
                 .childHandler(new ChannelInitializer<Channel>() {
                     @Override
                     protected void initChannel(Channel ch) {
-                        if (serverConfig.getProxyProtocols().contains(ProxyProtocolEnum.LEE)) {
+                        if (serverConfig.getProxyProtocols().contains(ProxyProtocolEnum.HTTP)) {
                             ch.pipeline().addLast(new LeeServerCodec());
                         }
 

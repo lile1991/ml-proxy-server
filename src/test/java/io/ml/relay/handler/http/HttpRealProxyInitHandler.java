@@ -27,9 +27,9 @@ public class HttpRealProxyInitHandler extends ChannelInitializer<Channel> {
     @Override
     protected void initChannel(Channel ch) {
         // ch.pipeline().addLast("loggingHandler", new LoggingHandler(LogLevel.DEBUG));
-        if (serverConfig.getRelayProtocols().contains(ProxyProtocolEnum.LEE)) {
+        /*if (serverConfig.getRelayProtocols().contains(ProxyProtocolEnum.LEE)) {
             ch.pipeline().addLast(new LeeClientCodec());
-        }
+        }*/
         ch.pipeline().addLast(new HttpClientCodec());
         ch.pipeline().addLast(new HttpObjectAggregator(serverConfig.getHttpObjectAggregatorMaxContentLength()));
         ch.pipeline().addLast(new HttpRealProxyHandler(relayChannel, serverConfig, httpRequestInfo));

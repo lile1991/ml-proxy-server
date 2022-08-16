@@ -33,7 +33,7 @@ public class HttpProxyServer {
         if(serverConfig.getRelayServerConfig() == null) {
             log.debug("Proxy server bind to port: {}, protocol: {}", serverConfig.getPort(), serverConfig.getProxyProtocols());
         } else {
-            log.debug("Relay server bind to port: {}, proxy protocol: {}, relay protocol: {}", serverConfig.getPort(), serverConfig.getProxyProtocols(), serverConfig.getRelayServerConfig().getRelayProtocol());
+            log.debug("Relay server bind to port: {}, the proxy protocol: {}, relay to protocol: {}", serverConfig.getPort(), serverConfig.getProxyProtocols(), serverConfig.getRelayServerConfig().getRelayProtocol());
         }
 
         GlobalChannelManage globalChannelManage = new GlobalChannelManage();
