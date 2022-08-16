@@ -5,18 +5,18 @@
 3. 代理用户名密码: auh / 123123
 ```java
 // 支持HTTP、HTTPS、SOCKS5代理协议, 自动识别
-HttpProxyServer proxyServer = new HttpProxyServer();
-ProxyServerConfig httpProxyServerConfig = new ProxyServerConfig();
-httpProxyServerConfig.setProxyProtocols(Arrays.asList(ProxyProtocolEnum.HTTP,
+ProxyServer proxyServer = new ProxyServer();
+ProxyServerConfig proxyServerConfig = new ProxyServerConfig();
+proxyServerConfig.setProxyProtocols(Arrays.asList(ProxyProtocolEnum.HTTP,
         ProxyProtocolEnum.HTTPS,
         ProxyProtocolEnum.SOCKS5));
-httpProxyServerConfig.setCodecMsg(false);
-httpProxyServerConfig.setPort(40000);
-httpProxyServerConfig.setUsernamePasswordAuth(new UsernamePasswordAuth("auh", "123123"));
-httpProxyServerConfig.setBossGroupThreads(5);
-httpProxyServerConfig.setWorkerGroupThreads(10);
+proxyServerConfig.setCodecMsg(false);
+proxyServerConfig.setPort(40000);
+proxyServerConfig.setUsernamePasswordAuth(new UsernamePasswordAuth("auh", "123123"));
+proxyServerConfig.setBossGroupThreads(5);
+proxyServerConfig.setWorkerGroupThreads(10);
 
-proxyServer.start(httpProxyServerConfig);
+proxyServer.start(proxyServerConfig);
 ```
 
 #### 测试
@@ -39,29 +39,29 @@ curl -v -x socks5://auh:123123@127.0.0.1:40000 https://ipinfo.io
 ```java
 // 打开中继服务器
 // 支持HTTP、HTTPS 代理协议, 可中继到HTTP、HTTPS、SOCKS5代理服务器
-HttpProxyServer proxyServer = new HttpProxyServer();
+ProxyServer proxyServer = new ProxyServer();
 // 暴露HTTP、HTTPS代理服务协议， 后续也会支持SOCKS5
-ProxyServerConfig httpProxyServerConfig = new ProxyServerConfig();
-httpProxyServerConfig.setProxyProtocols(Arrays.asList(ProxyProtocolEnum.HTTP,
+ProxyServerConfig proxyServerConfig = new ProxyServerConfig();
+proxyServerConfig.setProxyProtocols(Arrays.asList(ProxyProtocolEnum.HTTP,
     ProxyProtocolEnum.HTTPS
     // TODO Socks5中继代理开发中
     // ProxyProtocolEnum.SOCKS5
 ));
-httpProxyServerConfig.setCodecMsg(false);
-httpProxyServerConfig.setPort(40001);
-httpProxyServerConfig.setUsernamePasswordAuth(new UsernamePasswordAuth("auh", "456789"));
-httpProxyServerConfig.setBossGroupThreads(5);
-httpProxyServerConfig.setWorkerGroupThreads(10);
+proxyServerConfig.setCodecMsg(false);
+proxyServerConfig.setPort(40001);
+proxyServerConfig.setUsernamePasswordAuth(new UsernamePasswordAuth("auh", "456789"));
+proxyServerConfig.setBossGroupThreads(5);
+proxyServerConfig.setWorkerGroupThreads(10);
 
 // 配置真实代理服务器， 中继到SOCKS5服务
 RelayServerConfig relayServerConfig = new RelayServerConfig();
 relayServerConfig.setRelayProtocol(ProxyProtocolEnum.SOCKS5);
 relayServerConfig.setRelayNetAddress(new NetAddress("127.0.0.1", 40000));
 relayServerConfig.setRelayUsernamePasswordAuth(new UsernamePasswordAuth("auh", "123123"));
-httpProxyServerConfig.setRelayServerConfig(relayServerConfig);
+proxyServerConfig.setRelayServerConfig(relayServerConfig);
 
 // 启动中继服务
-proxyServer.start(httpProxyServerConfig);
+proxyServer.start(proxyServerConfig);
 ```
 #### 中继测试
 ```shell
