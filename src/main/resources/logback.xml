@@ -14,10 +14,10 @@
 
     <!-- 按照每天生成日志文件 -->
     <appender name="FILE" class="ch.qos.logback.core.rolling.RollingFileAppender">
-        <file>${LOG_HOME}/hw-proxy.log</file>
+        <file>${LOG_HOME}/ml-proxy-server.log</file>
         <rollingPolicy class="ch.qos.logback.core.rolling.SizeAndTimeBasedRollingPolicy">
             <!--日志文件输出的文件名-->
-            <FileNamePattern>${LOG_HOME}/hw-proxy.%d{yyyy-MM-dd}.%i.log</FileNamePattern>
+            <FileNamePattern>${LOG_HOME}/ml-proxy-server.%d{yyyy-MM-dd}.%i.log</FileNamePattern>
             <!-- 日志文件最大尺寸 -->
             <maxFileSize>50MB</maxFileSize>
             <!--日志文件保留天数-->
