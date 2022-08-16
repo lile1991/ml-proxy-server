@@ -12,7 +12,7 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Random;
 
-public class HttpProxyServerStartup {
+public class ProxyServerStartup {
     public static void main(String[] args) {
         int portBegin = 40000;
         // 打开代理服务器

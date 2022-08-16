@@ -39,7 +39,7 @@
     <logger name="io.ml" level="DEBUG" />
 
     <!-- 日志输出级别 -->
-    <root level="DEBUG" additivity="false">
-        <appender-ref ref="STDOUT" />
+    <root level="INFO" additivity="false">
+        <appender-ref ref="FILE" />
     </root>
 </configuration>
