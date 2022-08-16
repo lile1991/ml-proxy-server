@@ -13,7 +13,7 @@ import lombok.extern.slf4j.Slf4j;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 @Slf4j
-public class HttpProxyServer {
+public class ProxyServer {
 
     private final AtomicBoolean running = new AtomicBoolean(false);
 
@@ -32,6 +32,9 @@ public class HttpProxyServer {
         NioEventLoopGroup workerGroup = new NioEventLoopGroup(serverConfig.getWorkerGroupThreads());
         if(serverConfig.getRelayServerConfig() == null) {
             log.debug("Proxy server bind to port: {}, protocol: {}", serverConfig.getPort(), serverConfig.getProxyProtocols());
+            if(serverConfig.getLocalAddress() != null) {
+                log.debug("The server local address: {}", serverConfig.getLocalAddress());
+            }
         } else {
             log.debug("Relay server bind to port: {}, the proxy protocol: {}, relay to protocol: {}", serverConfig.getPort(), serverConfig.getProxyProtocols(), serverConfig.getRelayServerConfig().getRelayProtocol());
         }
