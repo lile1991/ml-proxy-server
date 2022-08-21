@@ -10,6 +10,9 @@ public class RelayServerConfig {
     /** 中继协议 */
     private ProxyProtocolEnum relayProtocol;
 
+    /** 加密协议 */
+    private EncryptionProtocolEnum encryptionProtocol;
+
     /** 中继地址 */
     private NetAddress relayNetAddress;
 

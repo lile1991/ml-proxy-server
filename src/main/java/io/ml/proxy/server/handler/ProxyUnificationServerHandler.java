@@ -2,6 +2,7 @@ package io.ml.proxy.server.handler;
 
 import io.ml.proxy.server.config.ProxyProtocolEnum;
 import io.ml.proxy.server.config.ProxyServerConfig;
+import io.ml.proxy.server.handler.codec.EncryptionCodecManage;
 import io.ml.proxy.server.handler.http.HttpAcceptConnectHandler;
 import io.ml.proxy.server.handler.http.proxy.HttpConnectToHostHandler;
 import io.ml.proxy.server.handler.http.relay.RelayHandler;
@@ -77,6 +78,10 @@ public class ProxyUnificationServerHandler extends ChannelInboundHandlerAdapter 
         Channel ch = ctx.channel();
         ChannelPipeline p = ctx.pipeline();
 
+        if(serverConfig.getEncryptionProtocol() != null) {
+            p.addFirst(EncryptionCodecManage.newServerCodec(serverConfig.getEncryptionProtocol()));
+        }
+
         // p.addLast(new LoggingHandler(LogLevel.INFO));
         // Socks5MessageByteBuf
         p.addAfter(ctx.name(), null, Socks5ServerEncoder.DEFAULT);
@@ -133,6 +138,11 @@ public class ProxyUnificationServerHandler extends ChannelInboundHandlerAdapter 
             ctx.pipeline().addLast(new HttpConnectToHostHandler(serverConfig));
         } else {
             ctx.pipeline().addLast(new RelayHandler(serverConfig));
+        }
+
+        if(serverConfig.getEncryptionProtocol() != null) {
+            log.debug("Added encryption codec to {}", ctx);
+            ctx.pipeline().addFirst(EncryptionCodecManage.newServerCodec(serverConfig.getEncryptionProtocol()));
         }
     }
     public void addHttpsHandlers(ChannelHandlerContext ctx) throws SSLException, CertificateException {

@@ -31,6 +31,8 @@ public class ProxyServerConfig {
 
     /** 代理协议 */
     protected List<ProxyProtocolEnum> proxyProtocols = Collections.singletonList(ProxyProtocolEnum.HTTP);
+    /** 加密协议 */
+    private EncryptionProtocolEnum encryptionProtocol;
 
     /** 中继服务配置 */
     private RelayServerConfig relayServerConfig;

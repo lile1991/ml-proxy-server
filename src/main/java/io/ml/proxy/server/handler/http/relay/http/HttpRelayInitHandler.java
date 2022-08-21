@@ -2,6 +2,7 @@ package io.ml.proxy.server.handler.http.relay.http;
 
 import io.ml.proxy.server.config.ProxyProtocolEnum;
 import io.ml.proxy.server.config.ProxyServerConfig;
+import io.ml.proxy.server.handler.codec.EncryptionCodecManage;
 import io.ml.proxy.server.handler.http.HttpRequestInfo;
 import io.ml.proxy.server.handler.https.SslHandlerCreator;
 import io.netty.channel.Channel;
@@ -32,6 +33,9 @@ public class HttpRelayInitHandler extends ChannelInitializer<Channel> {
     @Override
     protected void initChannel(Channel ch) throws SSLException, CertificateException {
         // ch.pipeline().addLast(new LoggingHandler(LogLevel.INFO));
+        if(serverConfig.getRelayServerConfig().getEncryptionProtocol() != null) {
+            ch.pipeline().addFirst(EncryptionCodecManage.newClientCodec(serverConfig.getRelayServerConfig().getEncryptionProtocol()));
+        }
         if(serverConfig.getRelayServerConfig().getRelayProtocol() == ProxyProtocolEnum.HTTPS) {
             ch.pipeline().addLast(SslHandlerCreator.forClient(ch.alloc()));
         }

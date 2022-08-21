@@ -25,6 +25,7 @@ public class ProxyServerStartup {
                     // Socks4a暂时没实现
                     // ProxyProtocolEnum.SOCKS4a,
                     ProxyProtocolEnum.SOCKS5));
+            proxyServerConfig.setEncryptionProtocol(EncryptionProtocolEnum.MinusOne);
             proxyServerConfig.setCodecMsg(false);
             proxyServerConfig.setPort(portBegin ++);
             proxyServerConfig.setUsernamePasswordAuth(new UsernamePasswordAuth("auh", "123123"));
@@ -56,6 +57,7 @@ public class ProxyServerStartup {
             // 配置真实代理服务器， 中继到SOCKS5服务
             RelayServerConfig relayServerConfig = new RelayServerConfig();
             relayServerConfig.setRelayProtocol(proxy.getProtocol());
+            relayServerConfig.setEncryptionProtocol(EncryptionProtocolEnum.MinusOne);
             relayServerConfig.setRelayNetAddress(new NetAddress(proxy.getHost(), proxy.getPort()));
             relayServerConfig.setRelayUsernamePasswordAuth(new UsernamePasswordAuth(proxy.getUsername(), proxy.getPassword()));
 

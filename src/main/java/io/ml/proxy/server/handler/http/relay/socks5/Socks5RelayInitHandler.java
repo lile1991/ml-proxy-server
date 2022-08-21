@@ -1,6 +1,7 @@
 package io.ml.proxy.server.handler.http.relay.socks5;
 
 import io.ml.proxy.server.config.ProxyServerConfig;
+import io.ml.proxy.server.handler.codec.EncryptionCodecManage;
 import io.ml.proxy.server.handler.http.HttpRequestInfo;
 import io.netty.channel.Channel;
 import io.netty.channel.ChannelInitializer;
@@ -27,6 +28,9 @@ public class Socks5RelayInitHandler extends ChannelInitializer<Channel> {
     @Override
     protected void initChannel(Channel ch) {
         // ch.pipeline().addLast(new LoggingHandler(LogLevel.DEBUG));
+        if(serverConfig.getRelayServerConfig().getEncryptionProtocol() != null) {
+            ch.pipeline().addFirst(EncryptionCodecManage.newClientCodec(serverConfig.getRelayServerConfig().getEncryptionProtocol()));
+        }
         // Socks5MessageByteBuf
         ch.pipeline().addLast(Socks5ClientEncoder.DEFAULT);
         // sock5 init

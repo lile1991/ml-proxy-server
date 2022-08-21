@@ -31,12 +31,16 @@ public class ProxyServer {
         NioEventLoopGroup bossGroup = new NioEventLoopGroup(serverConfig.getBossGroupThreads());
         NioEventLoopGroup workerGroup = new NioEventLoopGroup(serverConfig.getWorkerGroupThreads());
         if(serverConfig.getRelayServerConfig() == null) {
-            log.debug("Proxy server bind to port: {}, protocol: {}", serverConfig.getPort(), serverConfig.getProxyProtocols());
+            log.debug("Proxy server bind to port: {}, the proxy protocol: {}, encryption method: {}", serverConfig.getPort(), serverConfig.getProxyProtocols(), serverConfig.getEncryptionProtocol());
             if(serverConfig.getLocalAddress() != null) {
                 log.debug("The server local address: {}", serverConfig.getLocalAddress());
             }
         } else {
-            log.debug("Relay server bind to port: {}, the proxy protocol: {}, relay to protocol: {}", serverConfig.getPort(), serverConfig.getProxyProtocols(), serverConfig.getRelayServerConfig().getRelayProtocol());
+            log.debug("Relay server bind to port: {}, " +
+                            "the proxy protocol: {}, encryption method: {}; " +
+                            "relay to protocol: {}, encryption method: {}", serverConfig.getPort(),
+                    serverConfig.getProxyProtocols(), serverConfig.getEncryptionProtocol(),
+                    serverConfig.getRelayServerConfig().getRelayProtocol(), serverConfig.getRelayServerConfig().getEncryptionProtocol());
         }
 
         // GlobalChannelManage globalChannelManage = new GlobalChannelManage();
