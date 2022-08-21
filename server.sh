@@ -3,12 +3,13 @@
 APP_MAINCLASS=io.ml.ProxyServerStartup
 PROC_NAME=ProxyServerStartup
 # 日志路径，加不加引号都行。 注意：等号两边 不能 有空格，否则会提示command找不到
-LOG_PATh=/data/application/proxy-server/nohup.out
+LOG_PATh=/data/application/ml-proxy-server/nohup.out
+JAVA_HOME=/usr/local/java/jdk1.8.0_261
 
 #Xms inin memery
 #Xmx max memery
 #Xmn young memery
-JAVA_OPTS="-Duser.timezone="GMT+8" -Xms256m -Xmx1G -XX:CompressedClassSpaceSize=128m -XX:MetaspaceSize=200m -XX:MaxMetaspaceSize=200m -Xloggc:logs/gc.log -jar proxy-server-1.0-codec.jar"
+JAVA_OPTS="-Duser.timezone="GMT+8" -Xms256m -Xmx1G -XX:CompressedClassSpaceSize=128m -XX:MetaspaceSize=200m -XX:MaxMetaspaceSize=200m -Xloggc:logs/gc.log -jar ml-proxy-server-1.0-codec.jar"
 # 启动方法
 start() {
 	# 重新获取一下pid，因为其它操作如stop会导致pid的状态更新
