@@ -1,7 +1,7 @@
 #!/bin/bash
 #java options
-APP_MAINCLASS=io.ml.HttpProxyServerStartup
-PROC_NAME=HttpProxyServerStartup
+APP_MAINCLASS=io.ml.ProxyServerStartup
+PROC_NAME=ProxyServerStartup
 # 日志路径，加不加引号都行。 注意：等号两边 不能 有空格，否则会提示command找不到
 LOG_PATh=/data/application/proxy-server/nohup.out
 
