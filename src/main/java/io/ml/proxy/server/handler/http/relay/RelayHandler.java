@@ -160,19 +160,23 @@ public class RelayHandler extends ChannelInboundHandlerAdapter {
 
         // 直连HOST
         List<String> directHosts = replayRuleConfig.getDirectHosts();
-        for(String directHost: directHosts) {
-            if(uri.contains(directHost)) {
-                log.debug("DIRECT, The requesting uri '{}' match rule direct host '{}'", uri, directHost);
-                return true;
+        if(directHosts != null) {
+            for (String directHost : directHosts) {
+                if (uri.contains(directHost)) {
+                    log.debug("DIRECT, The requesting uri '{}' match rule direct host '{}'", uri, directHost);
+                    return true;
+                }
             }
         }
 
         // 只代理指定HOST
         if(replayRuleConfig.getProxyMode() == ReplayRuleConfig.ProxyMode.ONLY) {
             List<String> proxyHosts = replayRuleConfig.getProxyHosts();
-            for(String proxyHost: proxyHosts) {
-                if(uri.contains(proxyHost)) {
-                    return false;
+            if(proxyHosts != null) {
+                for (String proxyHost : proxyHosts) {
+                    if (uri.contains(proxyHost)) {
+                        return false;
+                    }
                 }
             }
             return true;
