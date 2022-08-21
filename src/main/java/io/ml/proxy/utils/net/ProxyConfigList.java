@@ -19,7 +19,7 @@ public class ProxyConfigList {
 
     static {
         File socks5File = new File("proxy/socks5_us.txt");
-        if(socks5File != null) {
+        if(socks5File.exists()) {
             try (InputStream resourceAsStream = new FileInputStream(socks5File)) {
                 List<String> socks5ProxyList = IOUtils.readLines(resourceAsStream, "UTF-8");
                 socks5ProxyList.forEach(socks5Proxy -> {
@@ -38,10 +38,7 @@ public class ProxyConfigList {
         }
     }
 
-    public static Proxy randomProxy() {
-        return PROXY_LIST.get(RANDOM.nextInt(PROXY_LIST.size() - 1));
-    }
     public static List<Proxy> getProxies() {
-        return PROXY_LIST;
+        return new ArrayList<>(PROXY_LIST);
     }
 }

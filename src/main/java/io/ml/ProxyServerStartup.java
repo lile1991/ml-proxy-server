@@ -37,6 +37,7 @@ public class ProxyServerStartup {
         // 中继代理
         // 支持HTTP、HTTPS 代理协议, 可中继到HTTP、HTTPS、SOCKS5代理服务器
         List<Proxy> proxies = ProxyConfigList.getProxies();
+        proxies.add(new Proxy(ProxyProtocolEnum.SOCKS5, "127.0.0.1", 40000, "auh", "123123"));
         for (Proxy proxy : proxies) {
             ProxyServer proxyServer = new ProxyServer();
             // 配置代理服务器， 支持HTTP、HTTPS协议， 后续也会支持SOCKS5
@@ -57,6 +58,11 @@ public class ProxyServerStartup {
             relayServerConfig.setRelayProtocol(proxy.getProtocol());
             relayServerConfig.setRelayNetAddress(new NetAddress(proxy.getHost(), proxy.getPort()));
             relayServerConfig.setRelayUsernamePasswordAuth(new UsernamePasswordAuth(proxy.getUsername(), proxy.getPassword()));
+
+            ReplayRuleConfig replayRuleConfig = new ReplayRuleConfig();
+            replayRuleConfig.setDirectHosts(Arrays.asList("weixin", "qq", "tencent", "alibaba", "aliyun", "ipinfo"));
+            relayServerConfig.setReplayRuleConfig(replayRuleConfig);
+
             proxyServerConfig.setRelayServerConfig(relayServerConfig);
 
             // 启动中继服务

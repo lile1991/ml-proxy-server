@@ -49,13 +49,13 @@ public class ProxyUnificationServerHandler extends ChannelInboundHandlerAdapter 
             return;
         }
 
-        ChannelPipeline p = ctx.pipeline();
         switch (protocol) {
             case HTTP: addHttpHandles(ctx); break;
             case HTTPS: addHttpsHandlers(ctx); break;
             case SOCKS5:
                 addSocks5Handler(ctx); break;
             // case SOCKS4a:
+            //     ChannelPipeline p = ctx.pipeline();
             //     p.addAfter(ctx.name(), null, Socks4ServerEncoder.INSTANCE);
             //     p.addAfter(ctx.name(), null, new Socks4ServerDecoder());
             //     break;

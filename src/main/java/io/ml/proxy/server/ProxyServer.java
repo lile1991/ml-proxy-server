@@ -39,7 +39,7 @@ public class ProxyServer {
             log.debug("Relay server bind to port: {}, the proxy protocol: {}, relay to protocol: {}", serverConfig.getPort(), serverConfig.getProxyProtocols(), serverConfig.getRelayServerConfig().getRelayProtocol());
         }
 
-        GlobalChannelManage globalChannelManage = new GlobalChannelManage();
+        // GlobalChannelManage globalChannelManage = new GlobalChannelManage();
         serverBootstrap.group(bossGroup, workerGroup)
                 .channel(NioServerSocketChannel.class)
                 // .handler(new LoggingHandler(LogLevel.INFO))

@@ -10,6 +10,9 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+/**
+ * .conf配置文件读取器
+ */
 public class ConfReader {
 
     public static class PropertyDefined {

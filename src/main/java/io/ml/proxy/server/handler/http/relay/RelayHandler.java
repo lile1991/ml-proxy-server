@@ -3,6 +3,7 @@ package io.ml.proxy.server.handler.http.relay;
 import io.ml.proxy.server.config.*;
 import io.ml.proxy.server.handler.ExchangeHandler;
 import io.ml.proxy.server.handler.http.HttpRequestInfo;
+import io.ml.proxy.server.handler.http.proxy.HttpConnectToHostHandler;
 import io.ml.proxy.server.handler.http.relay.http.HttpRelayInitHandler;
 import io.ml.proxy.server.handler.http.relay.socks5.Socks5RelayInitHandler;
 import io.netty.bootstrap.Bootstrap;
@@ -17,6 +18,7 @@ import lombok.extern.slf4j.Slf4j;
 
 import java.nio.charset.StandardCharsets;
 import java.util.Base64;
+import java.util.List;
 
 /**
  * Relay中继， 连接到另一个HTTP/HTTPS/SOCKS5代理
@@ -38,12 +40,22 @@ public class RelayHandler extends ChannelInboundHandlerAdapter {
     public void channelRead(ChannelHandlerContext ctx, Object msg) throws Exception {
         HttpRequest request = (HttpRequest) msg;
 
+        ctx.pipeline().remove(ctx.name());
+
         RelayServerConfig relayServerConfig = serverConfig.getRelayServerConfig();
         NetAddress relayNetAddress = relayServerConfig.getRelayNetAddress();
 
-        ctx.pipeline().remove(ctx.name());
+        ReplayRuleConfig replayRuleConfig = serverConfig.getRelayServerConfig().getReplayRuleConfig();
+        if(isRedirect(replayRuleConfig, request)) {
+            HttpConnectToHostHandler httpConnectToHostHandler = new HttpConnectToHostHandler(serverConfig);
+            ctx.pipeline().addLast(httpConnectToHostHandler);
+            ctx.pipeline().fireChannelRead(msg);
+            // httpConnectToHostHandler.channelRead(ctx, msg);
+            return;
+        }
 
-        // 连接目标代理并响应200
+
+            // 连接目标代理并响应200
         if(request.method() == HttpMethod.CONNECT) {
             connectTargetProxy(ctx, request).addListener((ChannelFutureListener) future -> {
                 if(future.isSuccess()) {
@@ -141,6 +153,31 @@ public class RelayHandler extends ChannelInboundHandlerAdapter {
                 }
             }
         });
+    }
+
+    private boolean isRedirect(ReplayRuleConfig replayRuleConfig, HttpRequest request) {
+        String uri = request.uri();
+
+        // 直连HOST
+        List<String> directHosts = replayRuleConfig.getDirectHosts();
+        for(String directHost: directHosts) {
+            if(uri.contains(directHost)) {
+                log.debug("DIRECT, The requesting uri '{}' match rule direct host '{}'", uri, directHost);
+                return true;
+            }
+        }
+
+        // 只代理指定HOST
+        if(replayRuleConfig.getProxyMode() == ReplayRuleConfig.ProxyMode.ONLY) {
+            List<String> proxyHosts = replayRuleConfig.getProxyHosts();
+            for(String proxyHost: proxyHosts) {
+                if(uri.contains(proxyHost)) {
+                    return false;
+                }
+            }
+            return true;
+        }
+        return false;
     }
 
     /**
