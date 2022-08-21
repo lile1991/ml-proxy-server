@@ -32,7 +32,7 @@ public class ProxyServerStartup {
             proxyServerConfig.setWorkerGroupThreads(10);
 
             proxyServer.start(proxyServerConfig);
-        }
+        }   // End 启动 HTTP/HTTPS/SOCKS5 代理服务器
 
 
         // 如果有配置代理服务器， 就中继过去
@@ -40,7 +40,7 @@ public class ProxyServerStartup {
         List<Proxy> proxies = ProxyConfigList.getProxies();
         for (Proxy proxy : proxies) {
             startRelayServer(proxy, portBegin++);
-        }
+        }   // End 中继服务器
 
         {
             ProxyServer proxyServer = new ProxyServer();
@@ -59,14 +59,14 @@ public class ProxyServerStartup {
             proxyServerConfig.setWorkerGroupThreads(10);
             proxyServer.start(proxyServerConfig);
 
-            // 中继到本地代理的
+            // 中继到本地代理
             startRelayServer(new Proxy(ProxyProtocolEnum.SOCKS5, proxyServerConfig.getEncryptionProtocol(), "127.0.0.1", proxyServerConfig.getPort(),
                     proxyServerConfig.getUsernamePasswordAuth().getUsername(), proxyServerConfig.getUsernamePasswordAuth().getPassword()), portBegin ++);
-        }
+        }   // End 启动加密代理服务
 
 
         // 主机有多个IP时， 分别开启不同端口代理到不同IP
-        InetAddress[] inetAddresses = LocaleInetAddresses.getInetAddresses();
+        /*InetAddress[] inetAddresses = LocaleInetAddresses.getInetAddresses();
         if(inetAddresses != null) {
             Random random = new Random();
             for (InetAddress inetAddress : inetAddresses) {
@@ -80,7 +80,7 @@ public class ProxyServerStartup {
                 proxyServerConfig.setLocalAddress(new InetSocketAddress(inetAddress, 45000 + random.nextInt(5000)));
                 proxyServer.start(proxyServerConfig);
             }
-        }
+        }*/
     }
 
     private static void startRelayServer(Proxy proxy, int localPort) {
