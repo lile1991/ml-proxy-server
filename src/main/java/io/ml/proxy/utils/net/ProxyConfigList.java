@@ -29,7 +29,7 @@ public class ProxyConfigList {
                     String username = split[2];
                     String password = split[3];
 
-                    Proxy proxy = new Proxy(ProxyProtocolEnum.SOCKS5, hostname, port, username, password);
+                    Proxy proxy = new Proxy(ProxyProtocolEnum.SOCKS5, null, hostname, port, username, password);
                     PROXY_LIST.add(proxy);
                 });
             } catch (IOException e) {

@@ -1,5 +1,6 @@
 package io.ml.proxy.utils.net;
 
+import io.ml.proxy.server.config.EncryptionProtocolEnum;
 import io.ml.proxy.server.config.ProxyProtocolEnum;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -12,7 +13,8 @@ import lombok.Setter;
 @NoArgsConstructor
 public class Proxy {
     /** 代理协议 */
-    private ProxyProtocolEnum protocol;
+    private ProxyProtocolEnum proxyProtocol;
+    private EncryptionProtocolEnum encryptionProtocol;
     /** 代理主机 */
     private String host;
     /** 代理端口 */

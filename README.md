@@ -71,7 +71,7 @@ proxyServerConfig.setProxyProtocols(Arrays.asList(ProxyProtocolEnum.HTTP,
     // ProxyProtocolEnum.SOCKS5
 ));
 proxyServerConfig.setCodecMsg(false);
-proxyServerConfig.setPort(40001);
+proxyServerConfig.setPort(40002);
 // 中继服务器的用户名和密码
 proxyServerConfig.setUsernamePasswordAuth(new UsernamePasswordAuth("auh", "456789"));
 proxyServerConfig.setBossGroupThreads(5);
@@ -91,12 +91,12 @@ proxyServer.start(proxyServerConfig);
 #### 中继测试
 ```shell
 # HTTP代理协议测试
-curl --insecure -v -x http://auh:123123@127.0.0.1:40001 https://ipinfo.io
+curl --insecure -v -x http://auh:123123@127.0.0.1:40002 https://ipinfo.io
 
 # HTTPS代理协议测试   --proxy-insecure 跳过https代理证书校验
-curl --proxy-insecure -v -x https://auh:123123@127.0.0.1:40001 https://ipinfo.io -k
+curl --proxy-insecure -v -x https://auh:123123@127.0.0.1:40002 https://ipinfo.io -k
 
 # socks5代理协议测试
-curl -v -x socks5://auh:123123@127.0.0.1:40001 https://ipinfo.io
+curl -v -x socks5://auh:123123@127.0.0.1:40002 https://ipinfo.io
 ```
 ipinfo将获取到RelayServerConfig配置的代理服务器IP
