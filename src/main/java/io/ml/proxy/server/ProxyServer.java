@@ -2,6 +2,7 @@ package io.ml.proxy.server;
 
 import io.ml.proxy.server.config.ProxyServerConfig;
 import io.ml.proxy.server.handler.ProxyUnificationServerHandler;
+import io.ml.proxy.server.handler.codec.EncryptionCodecManage;
 import io.netty.bootstrap.ServerBootstrap;
 import io.netty.channel.Channel;
 import io.netty.channel.ChannelInitializer;
@@ -50,6 +51,11 @@ public class ProxyServer {
                 .childHandler(new ChannelInitializer<Channel>() {
                     @Override
                     protected void initChannel(Channel ch) {
+                        if(serverConfig.getEncryptionProtocol() != null) {
+                            log.debug("Added encryption codec to {}", ch);
+                            ch.pipeline().addLast(EncryptionCodecManage.newServerCodec(serverConfig.getEncryptionProtocol()));
+                        }
+
                         ch.pipeline()
                             // .addLast(new LoggingHandler())
                             // .addLast(new ChannelRegisterHandler(globalChannelManage))

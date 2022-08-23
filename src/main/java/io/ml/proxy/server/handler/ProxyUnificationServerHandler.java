@@ -2,7 +2,6 @@ package io.ml.proxy.server.handler;
 
 import io.ml.proxy.server.config.ProxyProtocolEnum;
 import io.ml.proxy.server.config.ProxyServerConfig;
-import io.ml.proxy.server.handler.codec.EncryptionCodecManage;
 import io.ml.proxy.server.handler.http.HttpAcceptConnectHandler;
 import io.ml.proxy.server.handler.http.proxy.HttpConnectToHostHandler;
 import io.ml.proxy.server.handler.http.relay.RelayHandler;
@@ -13,8 +12,6 @@ import io.netty.channel.*;
 import io.netty.handler.codec.http.HttpObjectAggregator;
 import io.netty.handler.codec.http.HttpServerCodec;
 import io.netty.handler.codec.socksx.SocksVersion;
-import io.netty.handler.codec.socksx.v4.Socks4ServerDecoder;
-import io.netty.handler.codec.socksx.v4.Socks4ServerEncoder;
 import io.netty.handler.codec.socksx.v5.Socks5InitialRequestDecoder;
 import io.netty.handler.codec.socksx.v5.Socks5ServerEncoder;
 import lombok.extern.slf4j.Slf4j;
@@ -78,11 +75,6 @@ public class ProxyUnificationServerHandler extends ChannelInboundHandlerAdapter 
         Channel ch = ctx.channel();
         ChannelPipeline p = ctx.pipeline();
 
-        if(serverConfig.getEncryptionProtocol() != null) {
-            log.debug("Added encryption codec to {}", ctx);
-            p.addAfter(ctx.name(), null, EncryptionCodecManage.newServerCodec(serverConfig.getEncryptionProtocol()));
-        }
-
         // p.addLast(new LoggingHandler(LogLevel.INFO));
         // Socks5MessageByteBuf
         p.addAfter(ctx.name(), null, Socks5ServerEncoder.DEFAULT);
@@ -129,11 +121,6 @@ public class ProxyUnificationServerHandler extends ChannelInboundHandlerAdapter 
     }
 
     public void addHttpHandles(ChannelHandlerContext ctx) {
-        if(serverConfig.getEncryptionProtocol() != null) {
-            log.debug("Added encryption codec to {}", ctx);
-            ctx.pipeline().addAfter(ctx.name(), null, EncryptionCodecManage.newServerCodec(serverConfig.getEncryptionProtocol()));
-        }
-
         ctx.pipeline()
                 // .addLast(new LoggingHandler(LogLevel.DEBUG))
                 .addLast(new HttpServerCodec())

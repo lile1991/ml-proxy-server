@@ -51,7 +51,7 @@ public class ProxyServerStartup {
                     // ProxyProtocolEnum.SOCKS4a,
                     ProxyProtocolEnum.SOCKS5));
             // Encryption proxy protocol.
-            proxyServerConfig.setEncryptionProtocol(EncryptionProtocolEnum.MinusOne);
+            // proxyServerConfig.setEncryptionProtocol(EncryptionProtocolEnum.MinusOne);
             proxyServerConfig.setCodecMsg(false);
             proxyServerConfig.setPort(portBegin ++);
             proxyServerConfig.setUsernamePasswordAuth(new UsernamePasswordAuth("hw", "hw888888"));
@@ -60,7 +60,7 @@ public class ProxyServerStartup {
             proxyServer.start(proxyServerConfig);
 
             // 中继到本地代理
-            startRelayServer(new Proxy(ProxyProtocolEnum.HTTP, proxyServerConfig.getEncryptionProtocol(), "127.0.0.1", proxyServerConfig.getPort(),
+            startRelayServer(new Proxy(ProxyProtocolEnum.SOCKS5, proxyServerConfig.getEncryptionProtocol(), "127.0.0.1", proxyServerConfig.getPort(),
                     proxyServerConfig.getUsernamePasswordAuth().getUsername(), proxyServerConfig.getUsernamePasswordAuth().getPassword()), portBegin ++);
         }   // End 启动加密代理服务
 

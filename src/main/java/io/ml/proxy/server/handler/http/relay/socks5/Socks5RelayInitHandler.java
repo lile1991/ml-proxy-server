@@ -27,6 +27,7 @@ public class Socks5RelayInitHandler extends ChannelInitializer<Channel> {
 
     @Override
     protected void initChannel(Channel ch) {
+        log.debug("Relay to socks5 proxy server.");
         // ch.pipeline().addLast(new LoggingHandler(LogLevel.DEBUG));
         if(serverConfig.getRelayServerConfig().getEncryptionProtocol() != null) {
             ch.pipeline().addLast(EncryptionCodecManage.newClientCodec(serverConfig.getRelayServerConfig().getEncryptionProtocol()));
