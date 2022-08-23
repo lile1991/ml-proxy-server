@@ -7,6 +7,7 @@ import io.netty.handler.codec.ByteToMessageDecoder;
 import java.util.List;
 
 public class MinusOneDecoder extends ByteToMessageDecoder {
+
     @Override
     protected void decode(ChannelHandlerContext ctx, ByteBuf in, List<Object> out) {
         ByteBuf newIn = ctx.alloc().buffer(in.readableBytes(), in.capacity());

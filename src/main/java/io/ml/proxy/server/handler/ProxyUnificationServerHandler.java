@@ -79,7 +79,8 @@ public class ProxyUnificationServerHandler extends ChannelInboundHandlerAdapter 
         ChannelPipeline p = ctx.pipeline();
 
         if(serverConfig.getEncryptionProtocol() != null) {
-            p.addFirst(EncryptionCodecManage.newServerCodec(serverConfig.getEncryptionProtocol()));
+            log.debug("Added encryption codec to {}", ctx);
+            p.addAfter(ctx.name(), null, EncryptionCodecManage.newServerCodec(serverConfig.getEncryptionProtocol()));
         }
 
         // p.addLast(new LoggingHandler(LogLevel.INFO));
@@ -128,6 +129,11 @@ public class ProxyUnificationServerHandler extends ChannelInboundHandlerAdapter 
     }
 
     public void addHttpHandles(ChannelHandlerContext ctx) {
+        if(serverConfig.getEncryptionProtocol() != null) {
+            log.debug("Added encryption codec to {}", ctx);
+            ctx.pipeline().addAfter(ctx.name(), null, EncryptionCodecManage.newServerCodec(serverConfig.getEncryptionProtocol()));
+        }
+
         ctx.pipeline()
                 // .addLast(new LoggingHandler(LogLevel.DEBUG))
                 .addLast(new HttpServerCodec())
@@ -138,11 +144,6 @@ public class ProxyUnificationServerHandler extends ChannelInboundHandlerAdapter 
             ctx.pipeline().addLast(new HttpConnectToHostHandler(serverConfig));
         } else {
             ctx.pipeline().addLast(new RelayHandler(serverConfig));
-        }
-
-        if(serverConfig.getEncryptionProtocol() != null) {
-            log.debug("Added encryption codec to {}", ctx);
-            ctx.pipeline().addFirst(EncryptionCodecManage.newServerCodec(serverConfig.getEncryptionProtocol()));
         }
     }
     public void addHttpsHandlers(ChannelHandlerContext ctx) throws SSLException, CertificateException {

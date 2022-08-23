@@ -34,7 +34,7 @@ public class HttpRelayInitHandler extends ChannelInitializer<Channel> {
     protected void initChannel(Channel ch) throws SSLException, CertificateException {
         // ch.pipeline().addLast(new LoggingHandler(LogLevel.INFO));
         if(serverConfig.getRelayServerConfig().getEncryptionProtocol() != null) {
-            ch.pipeline().addFirst(EncryptionCodecManage.newClientCodec(serverConfig.getRelayServerConfig().getEncryptionProtocol()));
+            ch.pipeline().addLast(EncryptionCodecManage.newClientCodec(serverConfig.getRelayServerConfig().getEncryptionProtocol()));
         }
         if(serverConfig.getRelayServerConfig().getRelayProtocol() == ProxyProtocolEnum.HTTPS) {
             ch.pipeline().addLast(SslHandlerCreator.forClient(ch.alloc()));

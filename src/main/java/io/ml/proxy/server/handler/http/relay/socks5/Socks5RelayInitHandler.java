@@ -29,7 +29,7 @@ public class Socks5RelayInitHandler extends ChannelInitializer<Channel> {
     protected void initChannel(Channel ch) {
         // ch.pipeline().addLast(new LoggingHandler(LogLevel.DEBUG));
         if(serverConfig.getRelayServerConfig().getEncryptionProtocol() != null) {
-            ch.pipeline().addFirst(EncryptionCodecManage.newClientCodec(serverConfig.getRelayServerConfig().getEncryptionProtocol()));
+            ch.pipeline().addLast(EncryptionCodecManage.newClientCodec(serverConfig.getRelayServerConfig().getEncryptionProtocol()));
         }
         // Socks5MessageByteBuf
         ch.pipeline().addLast(Socks5ClientEncoder.DEFAULT);
