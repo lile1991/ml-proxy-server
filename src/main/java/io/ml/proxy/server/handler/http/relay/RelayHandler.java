@@ -198,7 +198,6 @@ public class RelayHandler extends ChannelInboundHandlerAdapter {
 
         Attribute<UsernamePasswordAuth> authAttribute = ctx.channel().attr(HttpAcceptConnectHandler.AUTH_ATTRIBUTE_KEY);
         NetAddress relayNetAddress = relayServerConfig.getRelayNetAddress(authAttribute.get());
-        UsernamePasswordAuth relayUsernamePasswordAuth = relayServerConfig.getRelayUsernamePasswordAuth(authAttribute.get());
 
         Bootstrap bootstrap = new Bootstrap();
         bootstrap.group(ctx.channel().eventLoop())
@@ -212,8 +211,8 @@ public class RelayHandler extends ChannelInboundHandlerAdapter {
                 ;
         switch (relayProtocol) {
             case HTTP:
-            case HTTPS: bootstrap.handler(new HttpRelayInitHandler(ctx.channel(), serverConfig, httpRequestInfo, relayUsernamePasswordAuth)); break;
-            case SOCKS5: bootstrap.handler(new Socks5RelayInitHandler(ctx.channel(), serverConfig, httpRequestInfo, relayUsernamePasswordAuth)); break;
+            case HTTPS: bootstrap.handler(new HttpRelayInitHandler(ctx.channel(), serverConfig, httpRequestInfo)); break;
+            case SOCKS5: bootstrap.handler(new Socks5RelayInitHandler(ctx.channel(), serverConfig, httpRequestInfo)); break;
             default:
                 ByteBuf responseBody = ctx.alloc().buffer();
                 responseBody.writeCharSequence("Unsupported relay protocol " + relayProtocol, StandardCharsets.UTF_8);

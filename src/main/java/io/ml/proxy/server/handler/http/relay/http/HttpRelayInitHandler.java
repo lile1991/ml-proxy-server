@@ -11,6 +11,7 @@ import io.netty.channel.Channel;
 import io.netty.channel.ChannelInitializer;
 import io.netty.handler.codec.http.HttpClientCodec;
 import io.netty.handler.codec.http.HttpObjectAggregator;
+import io.netty.util.Attribute;
 import lombok.extern.slf4j.Slf4j;
 
 import javax.net.ssl.SSLException;
@@ -24,20 +25,18 @@ public class HttpRelayInitHandler extends ChannelInitializer<Channel> {
     final Channel proxyServerChannel;
     final ProxyServerConfig serverConfig;
     final HttpRequestInfo httpRequestInfo;
-    final UsernamePasswordAuth relayUsernamePasswordAuth;
 
-
-    public HttpRelayInitHandler(Channel proxyServerChannel, ProxyServerConfig serverConfig, HttpRequestInfo httpRequestInfo, UsernamePasswordAuth relayUsernamePasswordAuth) {
+    public HttpRelayInitHandler(Channel proxyServerChannel, ProxyServerConfig serverConfig, HttpRequestInfo httpRequestInfo) {
         this.proxyServerChannel = proxyServerChannel;
         this.serverConfig = serverConfig;
         this.httpRequestInfo = httpRequestInfo;
-        this.relayUsernamePasswordAuth = relayUsernamePasswordAuth;
     }
 
     @Override
     protected void initChannel(Channel ch) throws SSLException, CertificateException {
         log.debug("Relay to http proxy server.");
-        ch.attr(HttpAcceptConnectHandler.AUTH_ATTRIBUTE_KEY).set(relayUsernamePasswordAuth);
+        Attribute<UsernamePasswordAuth> authAttribute = proxyServerChannel.attr(HttpAcceptConnectHandler.AUTH_ATTRIBUTE_KEY);
+        ch.attr(HttpAcceptConnectHandler.AUTH_ATTRIBUTE_KEY).set(authAttribute.get());
 
         // ch.pipeline().addLast(new LoggingHandler(LogLevel.INFO));
         if(serverConfig.getRelayServerConfig().getEncryptionProtocol() != null) {

@@ -9,6 +9,7 @@ import io.netty.channel.Channel;
 import io.netty.channel.ChannelInitializer;
 import io.netty.handler.codec.socksx.v5.Socks5ClientEncoder;
 import io.netty.handler.codec.socksx.v5.Socks5InitialResponseDecoder;
+import io.netty.util.Attribute;
 import lombok.extern.slf4j.Slf4j;
 
 /**
@@ -19,20 +20,19 @@ public class Socks5RelayInitHandler extends ChannelInitializer<Channel> {
     private final Channel proxyServerChannel;
     private final ProxyServerConfig serverConfig;
     private final HttpRequestInfo httpRequestInfo;
-    private final UsernamePasswordAuth relayUsernamePasswordAuth;
 
 
-    public Socks5RelayInitHandler(Channel proxyServerChannel, ProxyServerConfig serverConfig, HttpRequestInfo httpRequestInfo, UsernamePasswordAuth relayUsernamePasswordAuth) {
+    public Socks5RelayInitHandler(Channel proxyServerChannel, ProxyServerConfig serverConfig, HttpRequestInfo httpRequestInfo) {
         this.proxyServerChannel = proxyServerChannel;
         this.serverConfig = serverConfig;
         this.httpRequestInfo = httpRequestInfo;
-        this.relayUsernamePasswordAuth = relayUsernamePasswordAuth;
     }
 
     @Override
     protected void initChannel(Channel ch) {
         log.debug("Relay to socks5 proxy server.");
-        ch.attr(HttpAcceptConnectHandler.AUTH_ATTRIBUTE_KEY).set(relayUsernamePasswordAuth);
+        Attribute<UsernamePasswordAuth> authAttribute = proxyServerChannel.attr(HttpAcceptConnectHandler.AUTH_ATTRIBUTE_KEY);
+        ch.attr(HttpAcceptConnectHandler.AUTH_ATTRIBUTE_KEY).set(authAttribute.get());
 
         // ch.pipeline().addLast(new LoggingHandler(LogLevel.DEBUG));
         if(serverConfig.getRelayServerConfig().getEncryptionProtocol() != null) {
