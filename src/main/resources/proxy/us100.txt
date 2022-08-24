@@ -1,0 +1,3 @@
+HTTP:127.0.0.1:8888:username:password
+HTTPS:127.0.0.1:8888:username:password
+SOCKS5:127.0.0.1:8888:username:password

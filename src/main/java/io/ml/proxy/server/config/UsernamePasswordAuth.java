@@ -14,4 +14,8 @@ import java.util.Base64;
 public class UsernamePasswordAuth {
     private String username;
     private String password;
+
+    public String getUsernameAndPassword() {
+        return username + ":" + password;
+    }
 }
