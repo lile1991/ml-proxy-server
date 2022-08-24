@@ -9,7 +9,7 @@ import io.netty.channel.CombinedChannelDuplexHandler;
 
 public class EncryptionCodecManage {
 
-    public static CombinedChannelDuplexHandler<?, ?> newServerCodec(EncryptionProtocolEnum encryptionProtocol) {
+    public CombinedChannelDuplexHandler<?, ?> newServerCodec(EncryptionProtocolEnum encryptionProtocol) {
         switch (encryptionProtocol) {
             case MinusOne: return new MinusOneServerCodec();
             case ByteMap: return new ByteMapServerCodec();
@@ -17,7 +17,7 @@ public class EncryptionCodecManage {
         throw new UnsupportedOperationException("Unsupported the encryption protocol " + encryptionProtocol);
     }
 
-    public static CombinedChannelDuplexHandler<?, ?> newClientCodec(EncryptionProtocolEnum encryptionProtocol) {
+    public CombinedChannelDuplexHandler<?, ?> newClientCodec(EncryptionProtocolEnum encryptionProtocol) {
         switch (encryptionProtocol) {
             case MinusOne: return new MinusOneClientCodec();
             case ByteMap: return new ByteMapClientCodec();

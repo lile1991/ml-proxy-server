@@ -13,12 +13,14 @@ import io.netty.handler.timeout.IdleStateHandler;
 import lombok.extern.slf4j.Slf4j;
 
 import java.util.List;
+import java.util.ServiceLoader;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 @Slf4j
 public class ProxyServer {
 
     private final AtomicBoolean running = new AtomicBoolean(false);
+    public static EncryptionCodecManage encryptionCodecManage;
 
     /**
      * 启动代理服务器
@@ -46,6 +48,9 @@ public class ProxyServer {
                     serverConfig.getRelayServerConfig().getRelayProtocol(), serverConfig.getRelayServerConfig().getEncryptionProtocol());
         }
 
+        ServiceLoader<EncryptionCodecManage> encryptionCodecManageServiceLoader = ServiceLoader.load(EncryptionCodecManage.class);
+        encryptionCodecManage = encryptionCodecManageServiceLoader.iterator().next();
+
         // GlobalChannelManage globalChannelManage = new GlobalChannelManage();
         serverBootstrap.group(bossGroup, workerGroup)
                 .channel(NioServerSocketChannel.class)
@@ -55,7 +60,7 @@ public class ProxyServer {
                     protected void initChannel(Channel ch) {
                         if(serverConfig.getEncryptionProtocol() != null) {
                             log.debug("Added encryption codec to {}", ch);
-                            ch.pipeline().addLast(EncryptionCodecManage.newServerCodec(serverConfig.getEncryptionProtocol()));
+                            ch.pipeline().addLast(encryptionCodecManage.newServerCodec(serverConfig.getEncryptionProtocol()));
                         }
 
                         ch.pipeline()

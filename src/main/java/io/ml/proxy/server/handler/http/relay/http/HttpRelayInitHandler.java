@@ -17,6 +17,8 @@ import lombok.extern.slf4j.Slf4j;
 import javax.net.ssl.SSLException;
 import java.security.cert.CertificateException;
 
+import static io.ml.proxy.server.ProxyServer.encryptionCodecManage;
+
 /**
  * 与目标网站的Handler
  */
@@ -40,7 +42,7 @@ public class HttpRelayInitHandler extends ChannelInitializer<Channel> {
 
         // ch.pipeline().addLast(new LoggingHandler(LogLevel.INFO));
         if(serverConfig.getRelayServerConfig().getEncryptionProtocol() != null) {
-            ch.pipeline().addLast(EncryptionCodecManage.newClientCodec(serverConfig.getRelayServerConfig().getEncryptionProtocol()));
+            ch.pipeline().addLast(encryptionCodecManage.newClientCodec(serverConfig.getRelayServerConfig().getEncryptionProtocol()));
         }
         if(serverConfig.getRelayServerConfig().getRelayProtocol() == ProxyProtocolEnum.HTTPS) {
             ch.pipeline().addLast(SslHandlerCreator.forClient(ch.alloc()));

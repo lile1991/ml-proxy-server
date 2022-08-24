@@ -12,6 +12,8 @@ import io.netty.handler.codec.socksx.v5.Socks5InitialResponseDecoder;
 import io.netty.util.Attribute;
 import lombok.extern.slf4j.Slf4j;
 
+import static io.ml.proxy.server.ProxyServer.encryptionCodecManage;
+
 /**
  * 与目标网站的Handler
  */
@@ -36,7 +38,7 @@ public class Socks5RelayInitHandler extends ChannelInitializer<Channel> {
 
         // ch.pipeline().addLast(new LoggingHandler(LogLevel.DEBUG));
         if(serverConfig.getRelayServerConfig().getEncryptionProtocol() != null) {
-            ch.pipeline().addLast(EncryptionCodecManage.newClientCodec(serverConfig.getRelayServerConfig().getEncryptionProtocol()));
+            ch.pipeline().addLast(encryptionCodecManage.newClientCodec(serverConfig.getRelayServerConfig().getEncryptionProtocol()));
         }
         // Socks5MessageByteBuf
         ch.pipeline().addLast(Socks5ClientEncoder.DEFAULT);
