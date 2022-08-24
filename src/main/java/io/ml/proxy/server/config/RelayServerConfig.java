@@ -17,10 +17,17 @@ public class RelayServerConfig {
 
     /** 中继地址 */
     private Function<UsernamePasswordAuth, NetAddress> relayNetAddress;
-
     /** 中继鉴权 */
-    private UsernamePasswordAuth relayUsernamePasswordAuth;
+    private Function<UsernamePasswordAuth, UsernamePasswordAuth> relayUsernamePasswordAuth;
 
     /** 中继器规则配置 */
     private ReplayRuleConfig replayRuleConfig = new ReplayRuleConfig();
+
+    public NetAddress getRelayNetAddress(UsernamePasswordAuth usernamePasswordAuth) {
+        return relayNetAddress == null ? null : relayNetAddress.apply(usernamePasswordAuth);
+    }
+
+    public UsernamePasswordAuth getRelayUsernamePasswordAuth(UsernamePasswordAuth usernamePasswordAuth) {
+        return relayUsernamePasswordAuth == null ? null : relayUsernamePasswordAuth.apply(usernamePasswordAuth);
+    }
 }

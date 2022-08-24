@@ -47,7 +47,7 @@ public class RelayHandler extends ChannelInboundHandlerAdapter {
         RelayServerConfig relayServerConfig = serverConfig.getRelayServerConfig();
 
         Attribute<UsernamePasswordAuth> authAttribute = ctx.channel().attr(HttpAcceptConnectHandler.AUTH_ATTRIBUTE_KEY);
-        NetAddress relayNetAddress = relayServerConfig.getRelayNetAddress().apply(authAttribute.get());
+        NetAddress relayNetAddress = relayServerConfig.getRelayNetAddress(authAttribute.get());
 
         ReplayRuleConfig replayRuleConfig = serverConfig.getRelayServerConfig().getReplayRuleConfig();
         if(isRedirect(replayRuleConfig, request)) {
@@ -71,7 +71,7 @@ public class RelayHandler extends ChannelInboundHandlerAdapter {
                         case HTTP:
                         case HTTPS: {
                             // 设置远程代理服务器密码
-                            UsernamePasswordAuth relayUsernamePasswordAuth = relayServerConfig.getRelayUsernamePasswordAuth();
+                            UsernamePasswordAuth relayUsernamePasswordAuth = relayServerConfig.getRelayUsernamePasswordAuth(authAttribute.get());
                             if (relayUsernamePasswordAuth == null) {
                                 request.headers().remove(HttpHeaderNames.PROXY_AUTHORIZATION.toString());
                             } else {
@@ -89,7 +89,7 @@ public class RelayHandler extends ChannelInboundHandlerAdapter {
                         }
                         case SOCKS5: {
                             // Socks5 initial request
-                            UsernamePasswordAuth relayUsernamePasswordAuth = relayServerConfig.getRelayUsernamePasswordAuth();
+                            UsernamePasswordAuth relayUsernamePasswordAuth = relayServerConfig.getRelayUsernamePasswordAuth(authAttribute.get());
                             DefaultSocks5InitialRequest socks5InitialRequest = new DefaultSocks5InitialRequest(relayUsernamePasswordAuth == null ? Socks5AuthMethod.NO_AUTH : Socks5AuthMethod.PASSWORD);
                             log.debug("Write socks5InitialRequest to {}\r\b{}", clientChannel.remoteAddress(), clientChannel);
                             clientChannel.writeAndFlush(socks5InitialRequest);
@@ -123,7 +123,7 @@ public class RelayHandler extends ChannelInboundHandlerAdapter {
                     case HTTP:
                     case HTTPS: {
                         // 设置远程代理服务器密码
-                        UsernamePasswordAuth relayUsernamePasswordAuth = relayServerConfig.getRelayUsernamePasswordAuth();
+                        UsernamePasswordAuth relayUsernamePasswordAuth = relayServerConfig.getRelayUsernamePasswordAuth(authAttribute.get());
                         if (relayUsernamePasswordAuth == null) {
                             request.headers().remove(HttpHeaderNames.PROXY_AUTHORIZATION.toString());
                         } else {
@@ -141,7 +141,7 @@ public class RelayHandler extends ChannelInboundHandlerAdapter {
                     }
                     case SOCKS5: {
                         // Socks5 initial request
-                        UsernamePasswordAuth relayUsernamePasswordAuth = relayServerConfig.getRelayUsernamePasswordAuth();
+                        UsernamePasswordAuth relayUsernamePasswordAuth = relayServerConfig.getRelayUsernamePasswordAuth(authAttribute.get());
                         DefaultSocks5InitialRequest socks5InitialRequest = new DefaultSocks5InitialRequest(relayUsernamePasswordAuth == null ? Socks5AuthMethod.NO_AUTH : Socks5AuthMethod.PASSWORD);
                         log.debug("Write socks5InitialRequest to {}", clientChannel.remoteAddress());
                         clientChannel.writeAndFlush(socks5InitialRequest);
@@ -224,7 +224,7 @@ public class RelayHandler extends ChannelInboundHandlerAdapter {
         }
 
         Attribute<UsernamePasswordAuth> authAttribute = ctx.channel().attr(HttpAcceptConnectHandler.AUTH_ATTRIBUTE_KEY);
-        NetAddress relayNetAddress = relayServerConfig.getRelayNetAddress().apply(authAttribute.get());
+        NetAddress relayNetAddress = relayServerConfig.getRelayNetAddress(authAttribute.get());
         return bootstrap.connect(relayNetAddress.getRemoteHost(), relayNetAddress.getRemotePort());
     }
 }

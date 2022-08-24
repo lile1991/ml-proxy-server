@@ -3,11 +3,13 @@ package io.ml.proxy.server.handler.http.relay.socks5;
 import io.ml.proxy.server.config.ProxyServerConfig;
 import io.ml.proxy.server.config.RelayServerConfig;
 import io.ml.proxy.server.config.UsernamePasswordAuth;
+import io.ml.proxy.server.handler.http.HttpAcceptConnectHandler;
 import io.ml.proxy.server.handler.http.HttpRequestInfo;
 import io.netty.channel.Channel;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.ChannelInboundHandlerAdapter;
 import io.netty.handler.codec.socksx.v5.*;
+import io.netty.util.Attribute;
 import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
@@ -44,7 +46,8 @@ public class Socks5RelayInitialResponseHandler extends ChannelInboundHandlerAdap
             ctx.pipeline().addAfter(ctx.name(), null, new Socks5PasswordAuthResponseDecoder());
             ctx.pipeline().remove(ctx.name());
 
-            UsernamePasswordAuth relayUsernamePasswordAuth = relayServerConfig.getRelayUsernamePasswordAuth();
+            Attribute<UsernamePasswordAuth> authAttribute = ctx.channel().attr(HttpAcceptConnectHandler.AUTH_ATTRIBUTE_KEY);
+            UsernamePasswordAuth relayUsernamePasswordAuth = relayServerConfig.getRelayUsernamePasswordAuth(authAttribute.get());
             DefaultSocks5PasswordAuthRequest socks5PasswordAuthRequest = new DefaultSocks5PasswordAuthRequest(relayUsernamePasswordAuth.getUsername(), relayUsernamePasswordAuth.getPassword());
             ctx.writeAndFlush(socks5PasswordAuthRequest);
         }

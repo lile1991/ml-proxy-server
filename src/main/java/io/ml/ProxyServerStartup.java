@@ -103,13 +103,11 @@ public class ProxyServerStartup {
         RelayServerConfig relayServerConfig = new RelayServerConfig();
         relayServerConfig.setRelayProtocol(proxy.getProxyProtocol());
         relayServerConfig.setEncryptionProtocol(proxy.getEncryptionProtocol());
-        relayServerConfig.setRelayNetAddress(usernamePasswordAuth -> {
-            return new NetAddress(proxy.getHost(), proxy.getPort());
-        });
-        relayServerConfig.setRelayUsernamePasswordAuth(new UsernamePasswordAuth(proxy.getUsername(), proxy.getPassword()));
+        relayServerConfig.setRelayNetAddress(usernamePasswordAuth -> new NetAddress(proxy.getHost(), proxy.getPort()));
+        relayServerConfig.setRelayUsernamePasswordAuth(usernamePasswordAuth -> new UsernamePasswordAuth(proxy.getUsername(), proxy.getPassword()));
 
         ReplayRuleConfig replayRuleConfig = new ReplayRuleConfig();
-        replayRuleConfig.setDirectHosts(Arrays.asList("weixin", "qq", "tencent", "alibaba", "aliyun", "microsoft", "baidu", "hao123"));
+        // replayRuleConfig.setDirectHosts(Arrays.asList("weixin", "qq", "tencent", "alibaba", "aliyun", "microsoft", "baidu", "hao123"));
         relayServerConfig.setReplayRuleConfig(replayRuleConfig);
 
         proxyServerConfig.setRelayServerConfig(relayServerConfig);
