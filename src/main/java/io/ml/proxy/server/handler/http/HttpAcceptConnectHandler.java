@@ -4,10 +4,9 @@ import io.ml.proxy.server.config.ProxyServerConfig;
 import io.ml.proxy.server.config.UsernamePasswordAuth;
 import io.netty.channel.*;
 import io.netty.handler.codec.http.*;
+import io.netty.util.Attribute;
+import io.netty.util.AttributeKey;
 import lombok.extern.slf4j.Slf4j;
-
-import java.nio.charset.StandardCharsets;
-import java.util.Base64;
 
 /**
  * 接收代理请求
@@ -17,6 +16,7 @@ public class HttpAcceptConnectHandler extends ChannelInboundHandlerAdapter {
 
     private final ProxyServerConfig serverConfig;
     // private final List<Object> messageQueue = new ArrayList<>();
+    public static final AttributeKey<UsernamePasswordAuth> AUTH_ATTRIBUTE_KEY = AttributeKey.newInstance("usernamePasswordAuth");
 
     public HttpAcceptConnectHandler(ProxyServerConfig serverConfig) {
         this.serverConfig = serverConfig;
@@ -38,7 +38,7 @@ public class HttpAcceptConnectHandler extends ChannelInboundHandlerAdapter {
         log.debug("Read: {}\r\n{}", msg, ctx.channel());
         HttpRequest request = (HttpRequest) msg;
         String proxyAuthorization = request.headers().get(HttpHeaderNames.PROXY_AUTHORIZATION.toString());
-        if(serverConfig.getUsernamePasswordAuth() != null) {
+        if(serverConfig.isNeedAuthorization()) {
             if(proxyAuthorization == null || proxyAuthorization.isEmpty()) {
                 log.debug("Please provide Proxy-Authorization\r\n{}", ctx);
                 response407ProxyAuthenticationRequired(ctx.channel(), request.protocolVersion(), "Please provide Proxy-Authorization")
@@ -46,15 +46,18 @@ public class HttpAcceptConnectHandler extends ChannelInboundHandlerAdapter {
                 return;
             }
 
-            UsernamePasswordAuth usernamePasswordAuth = serverConfig.getUsernamePasswordAuth();
-            String usernamePassword = usernamePasswordAuth.getUsername() + ":" + usernamePasswordAuth.getPassword();
-
-            if(!proxyAuthorization.equals("Basic " + Base64.getEncoder().encodeToString(usernamePassword.getBytes(StandardCharsets.UTF_8)))) {
+            UsernamePasswordAuth usernamePasswordAuth = serverConfig.getUsernamePasswordAuth(proxyAuthorization);
+            if(usernamePasswordAuth == null) {
                 log.debug("Incorrect proxy username or password\r\n{}", ctx);
                 response407ProxyAuthenticationRequired(ctx.channel(), request.protocolVersion(), "Incorrect proxy username or password")
                         .addListener(ChannelFutureListener.CLOSE);
                 return;
             }
+
+
+            // 保存用户名密码到当前channelContext
+            Attribute<UsernamePasswordAuth> attribute = ctx.channel().attr(AUTH_ATTRIBUTE_KEY);
+            attribute.set(usernamePasswordAuth);
         }
 
         // 移除自己

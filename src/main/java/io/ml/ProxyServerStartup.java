@@ -9,6 +9,7 @@ import io.ml.proxy.utils.net.ProxyConfigList;
 import java.net.InetAddress;
 import java.net.InetSocketAddress;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 import java.util.Random;
 
@@ -27,7 +28,7 @@ public class ProxyServerStartup {
                     ProxyProtocolEnum.SOCKS5));
             proxyServerConfig.setCodecMsg(false);
             proxyServerConfig.setPort(portBegin ++);
-            proxyServerConfig.setUsernamePasswordAuth(new UsernamePasswordAuth("hl", "hl888888"));
+            proxyServerConfig.setUsernamePasswordAuths(Collections.singletonList(new UsernamePasswordAuth("hl", "hl888888")));
             proxyServerConfig.setBossGroupThreads(5);
             proxyServerConfig.setWorkerGroupThreads(10);
 
@@ -51,10 +52,10 @@ public class ProxyServerStartup {
                     // ProxyProtocolEnum.SOCKS4a,
                     ProxyProtocolEnum.SOCKS5));
             // Encryption proxy protocol.
-            // proxyServerConfig.setEncryptionProtocol(EncryptionProtocolEnum.MinusOne);
+            proxyServerConfig.setEncryptionProtocol(EncryptionProtocolEnum.MinusOne);
             proxyServerConfig.setCodecMsg(false);
             proxyServerConfig.setPort(portBegin ++);
-            proxyServerConfig.setUsernamePasswordAuth(new UsernamePasswordAuth("hw", "hw888888"));
+            proxyServerConfig.setUsernamePasswordAuths(Collections.singletonList(new UsernamePasswordAuth("hw", "hw888888")));
             proxyServerConfig.setBossGroupThreads(5);
             proxyServerConfig.setWorkerGroupThreads(10);
             proxyServer.start(proxyServerConfig);
@@ -94,7 +95,7 @@ public class ProxyServerStartup {
         ));
         proxyServerConfig.setCodecMsg(false);
         proxyServerConfig.setPort(localPort);
-        proxyServerConfig.setUsernamePasswordAuth(new UsernamePasswordAuth("hl", "888888"));
+        proxyServerConfig.setUsernamePasswordAuths(Collections.singletonList(new UsernamePasswordAuth("hl", "888888")));
         proxyServerConfig.setBossGroupThreads(5);
         proxyServerConfig.setWorkerGroupThreads(10);
 
@@ -102,7 +103,9 @@ public class ProxyServerStartup {
         RelayServerConfig relayServerConfig = new RelayServerConfig();
         relayServerConfig.setRelayProtocol(proxy.getProxyProtocol());
         relayServerConfig.setEncryptionProtocol(proxy.getEncryptionProtocol());
-        relayServerConfig.setRelayNetAddress(new NetAddress(proxy.getHost(), proxy.getPort()));
+        relayServerConfig.setRelayNetAddress(usernamePasswordAuth -> {
+            return new NetAddress(proxy.getHost(), proxy.getPort());
+        });
         relayServerConfig.setRelayUsernamePasswordAuth(new UsernamePasswordAuth(proxy.getUsername(), proxy.getPassword()));
 
         ReplayRuleConfig replayRuleConfig = new ReplayRuleConfig();

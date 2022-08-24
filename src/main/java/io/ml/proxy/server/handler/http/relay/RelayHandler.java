@@ -2,6 +2,7 @@ package io.ml.proxy.server.handler.http.relay;
 
 import io.ml.proxy.server.config.*;
 import io.ml.proxy.server.handler.ExchangeHandler;
+import io.ml.proxy.server.handler.http.HttpAcceptConnectHandler;
 import io.ml.proxy.server.handler.http.HttpRequestInfo;
 import io.ml.proxy.server.handler.http.proxy.HttpConnectToHostHandler;
 import io.ml.proxy.server.handler.http.relay.http.HttpRelayInitHandler;
@@ -14,6 +15,7 @@ import io.netty.channel.socket.nio.NioSocketChannel;
 import io.netty.handler.codec.http.*;
 import io.netty.handler.codec.socksx.v5.DefaultSocks5InitialRequest;
 import io.netty.handler.codec.socksx.v5.Socks5AuthMethod;
+import io.netty.util.Attribute;
 import lombok.extern.slf4j.Slf4j;
 
 import java.nio.charset.StandardCharsets;
@@ -43,7 +45,9 @@ public class RelayHandler extends ChannelInboundHandlerAdapter {
         ctx.pipeline().remove(ctx.name());
 
         RelayServerConfig relayServerConfig = serverConfig.getRelayServerConfig();
-        NetAddress relayNetAddress = relayServerConfig.getRelayNetAddress();
+
+        Attribute<UsernamePasswordAuth> authAttribute = ctx.channel().attr(HttpAcceptConnectHandler.AUTH_ATTRIBUTE_KEY);
+        NetAddress relayNetAddress = relayServerConfig.getRelayNetAddress().apply(authAttribute.get());
 
         ReplayRuleConfig replayRuleConfig = serverConfig.getRelayServerConfig().getReplayRuleConfig();
         if(isRedirect(replayRuleConfig, request)) {
@@ -219,7 +223,8 @@ public class RelayHandler extends ChannelInboundHandlerAdapter {
             bootstrap.remoteAddress(serverConfig.getLocalAddress());
         }
 
-        NetAddress relayNetAddress = relayServerConfig.getRelayNetAddress();
+        Attribute<UsernamePasswordAuth> authAttribute = ctx.channel().attr(HttpAcceptConnectHandler.AUTH_ATTRIBUTE_KEY);
+        NetAddress relayNetAddress = relayServerConfig.getRelayNetAddress().apply(authAttribute.get());
         return bootstrap.connect(relayNetAddress.getRemoteHost(), relayNetAddress.getRemotePort());
     }
 }

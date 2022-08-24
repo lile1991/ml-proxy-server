@@ -5,7 +5,9 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
-@Setter
+import java.nio.charset.StandardCharsets;
+import java.util.Base64;
+
 @Getter
 @AllArgsConstructor
 @NoArgsConstructor

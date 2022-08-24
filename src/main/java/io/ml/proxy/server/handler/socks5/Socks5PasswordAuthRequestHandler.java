@@ -7,17 +7,19 @@ import io.netty.channel.SimpleChannelInboundHandler;
 import io.netty.handler.codec.socksx.v5.*;
 import lombok.extern.slf4j.Slf4j;
 
+import java.util.List;
+
 @Slf4j
 public class Socks5PasswordAuthRequestHandler extends SimpleChannelInboundHandler<DefaultSocks5PasswordAuthRequest> {
-    private final UsernamePasswordAuth usernamePasswordAuth;
+    private final List<UsernamePasswordAuth> usernamePasswordAuths;
 
-    public Socks5PasswordAuthRequestHandler(UsernamePasswordAuth usernamePasswordAuth) {
-        this.usernamePasswordAuth = usernamePasswordAuth;
+    public Socks5PasswordAuthRequestHandler(List<UsernamePasswordAuth> usernamePasswordAuths) {
+        this.usernamePasswordAuths = usernamePasswordAuths;
     }
 
     @Override
-    protected void channelRead0(ChannelHandlerContext ctx, DefaultSocks5PasswordAuthRequest msg) throws Exception {
-        if(usernamePasswordAuth.getUsername().equals(msg.username()) && usernamePasswordAuth.getPassword().equals(msg.password())) {
+    protected void channelRead0(ChannelHandlerContext ctx, DefaultSocks5PasswordAuthRequest msg) {
+        if(isAuthorized(msg)) {
             ctx.pipeline().remove(Socks5PasswordAuthRequestDecoder.class);
             ctx.pipeline().remove(ctx.name());
 
@@ -27,5 +29,14 @@ public class Socks5PasswordAuthRequestHandler extends SimpleChannelInboundHandle
             Socks5PasswordAuthResponse passwordAuthResponse = new DefaultSocks5PasswordAuthResponse(Socks5PasswordAuthStatus.FAILURE);
             ctx.writeAndFlush(passwordAuthResponse).addListener(ChannelFutureListener.CLOSE);
         }
+    }
+
+    private boolean isAuthorized(DefaultSocks5PasswordAuthRequest msg) {
+        for(UsernamePasswordAuth usernamePasswordAuth: usernamePasswordAuths) {
+            if(usernamePasswordAuth.getUsername().equals(msg.username()) && usernamePasswordAuth.getPassword().equals(msg.password())) {
+                return true;
+            }
+        }
+        return false;
     }
 }

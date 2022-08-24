@@ -3,6 +3,8 @@ package io.ml.proxy.server.config;
 import lombok.Getter;
 import lombok.Setter;
 
+import java.util.function.Function;
+
 @Setter
 @Getter
 public class RelayServerConfig {
@@ -14,7 +16,7 @@ public class RelayServerConfig {
     private EncryptionProtocolEnum encryptionProtocol;
 
     /** 中继地址 */
-    private NetAddress relayNetAddress;
+    private Function<UsernamePasswordAuth, NetAddress> relayNetAddress;
 
     /** 中继鉴权 */
     private UsernamePasswordAuth relayUsernamePasswordAuth;
