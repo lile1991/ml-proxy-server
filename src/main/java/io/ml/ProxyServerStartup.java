@@ -99,7 +99,7 @@ public class ProxyServerStartup {
         proxyServerConfig.setBossGroupThreads(5);
         proxyServerConfig.setWorkerGroupThreads(10);
 
-        // 配置真实代理服务器， 中继到SOCKS5服务
+        // 配置真实代理服务器， 中继到真实的代理服务器
         RelayServerConfig relayServerConfig = new RelayServerConfig();
         relayServerConfig.setRelayProtocol(proxy.getProxyProtocol());
         relayServerConfig.setEncryptionProtocol(proxy.getEncryptionProtocol());
