@@ -1,4 +1,4 @@
-package io.ml.proxy.server.handler.codec;
+package io.ml.proxy.server.handler.codec.minusone;
 
 import io.netty.buffer.ByteBuf;
 import io.netty.channel.ChannelHandlerContext;
