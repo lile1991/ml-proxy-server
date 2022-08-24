@@ -18,19 +18,26 @@ public class ProxyConfigList {
     private static final Random RANDOM = new Random();
 
     /**
-     * @param classPathname 类路径下的代理配置， 如 proxy/us.txt"
+     * @param path 类路径下的代理配置， 如 proxy/us.txt"
      * @return
      */
-    private static synchronized List<Proxy> initProxies(String classPathname) {
-        if(!PROXY_LIST_MAP.containsKey(classPathname)) {
-            URL resource = ProxyConfigList.class.getResource(classPathname);
-            if(resource == null) {
-                return null;
+    private static synchronized List<Proxy> initProxies(String path) {
+        if(!PROXY_LIST_MAP.containsKey(path)) {
+            File proxyFile;
+
+            if(path.startsWith("classpath:")) {
+                String classpath = path.substring("classpath:".length());
+                URL resource = ProxyConfigList.class.getResource(classpath);
+                if(resource == null) {
+                    return null;
+                }
+                proxyFile = new File(resource.getFile());
+            } else {
+                proxyFile = new File(path);
             }
 
-            File socks5File = new File(resource.getFile());
-            if(socks5File.exists()) {
-                try (InputStream resourceAsStream = new FileInputStream(socks5File)) {
+            if(proxyFile.exists()) {
+                try (InputStream resourceAsStream = new FileInputStream(proxyFile)) {
                     List<String> socks5ProxyList = IOUtils.readLines(resourceAsStream, "UTF-8");
                     List<Proxy> proxies = socks5ProxyList.stream().map(socks5Proxy -> {
                         String[] split = socks5Proxy.split(":");
@@ -48,11 +55,11 @@ public class ProxyConfigList {
 
                         return new Proxy(ProxyProtocolEnum.valueOf(protocol), null, hostname, port, username, password);
                     }).collect(Collectors.toList());
-                    PROXY_LIST_MAP.put(classPathname, proxies);
+                    PROXY_LIST_MAP.put(path, proxies);
                     return proxies;
                 } catch (IOException e) {
                     log.error("Initial proxy IP exception", e);
-                    PROXY_LIST_MAP.put(classPathname, Collections.emptyList());
+                    PROXY_LIST_MAP.put(path, Collections.emptyList());
                 }
             }
         }
@@ -60,13 +67,13 @@ public class ProxyConfigList {
     }
 
     /**
-     *
-     * @param classPathname 类路径下的代理配置， 如 proxy/us.txt"
+     * 支持使用类路径
+     * @param path 如 proxy/us100.txt 或 classpath:/proxy/us100.txt
      */
-    public static List<Proxy> getProxies(String classPathname) {
-        List<Proxy> proxies = PROXY_LIST_MAP.get(classPathname);
+    public static List<Proxy> getProxies(String path) {
+        List<Proxy> proxies = PROXY_LIST_MAP.get(path);
         if(proxies == null) {
-            proxies = initProxies(classPathname);
+            proxies = initProxies(path);
         }
         return new ArrayList<>(proxies);
     }
