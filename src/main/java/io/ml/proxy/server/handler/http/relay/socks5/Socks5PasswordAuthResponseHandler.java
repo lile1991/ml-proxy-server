@@ -28,7 +28,7 @@ public class Socks5PasswordAuthResponseHandler extends ChannelInboundHandlerAdap
             log.debug("Socks5 auth success");
 
             log.debug("Add Socks5CommandResponseHandler to relay server pipeline.");
-            // 增加CommandHandler
+            // Socks5CommandResponseHandler
             ctx.pipeline().addAfter(ctx.name(), null, new Socks5CommandResponseHandler(serverConfig, proxyServerChannel, httpRequestInfo));
             ctx.pipeline().addAfter(ctx.name(), null, new Socks5CommandResponseDecoder());
 

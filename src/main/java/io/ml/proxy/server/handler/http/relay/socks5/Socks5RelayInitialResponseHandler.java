@@ -30,6 +30,14 @@ public class Socks5RelayInitialResponseHandler extends ChannelInboundHandlerAdap
         Socks5AuthMethod socks5AuthMethod = socks5InitialResponse.authMethod();
         if(socks5AuthMethod.compareTo(Socks5AuthMethod.NO_AUTH) == 0) {
             log.debug("Socks5 proxy server does not authentication required");
+            // Socks5CommandResponseHandler
+            ctx.pipeline().addAfter(ctx.name(), null, new Socks5CommandResponseHandler(serverConfig, proxyServerChannel, httpRequestInfo));
+            ctx.pipeline().addAfter(ctx.name(), null, new Socks5CommandResponseDecoder());
+
+            // Connection to website
+            DefaultSocks5CommandRequest socks5CommandRequest = new DefaultSocks5CommandRequest(Socks5CommandType.CONNECT,
+                    Socks5AddressType.DOMAIN, httpRequestInfo.getRemoteHost(), httpRequestInfo.getRemotePort());
+            ctx.writeAndFlush(socks5CommandRequest);
         } else {
             ctx.pipeline().remove(Socks5InitialResponseDecoder.class);
             ctx.pipeline().addAfter(ctx.name(), null, new Socks5PasswordAuthResponseHandler(serverConfig, proxyServerChannel, httpRequestInfo));
