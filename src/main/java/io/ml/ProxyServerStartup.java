@@ -61,8 +61,8 @@ public class ProxyServerStartup {
             proxyServer.start(proxyServerConfig);
 
             // 中继到本地代理
-            // startRelayServer(new Proxy(ProxyProtocolEnum.SOCKS5, proxyServerConfig.getEncryptionProtocol(), "127.0.0.1", proxyServerConfig.getPort(),
-            //         proxyServerConfig.getUsernamePasswordAuth().getUsername(), proxyServerConfig.getUsernamePasswordAuth().getPassword()), portBegin ++);
+            startRelayServer(new Proxy(ProxyProtocolEnum.SOCKS5, proxyServerConfig.getEncryptionProtocol(), "127.0.0.1", proxyServerConfig.getPort(),
+                    "hw", "hw888888"), portBegin ++);
         }   // End 启动加密代理服务
 
 
