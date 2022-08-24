@@ -3,10 +3,6 @@ package io.ml.proxy.server.config;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
-import lombok.Setter;
-
-import java.nio.charset.StandardCharsets;
-import java.util.Base64;
 
 @Getter
 @AllArgsConstructor

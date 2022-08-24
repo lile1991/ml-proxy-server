@@ -2,16 +2,12 @@ package io.ml;
 
 import io.ml.proxy.server.ProxyServer;
 import io.ml.proxy.server.config.*;
-import io.ml.proxy.utils.net.LocaleInetAddresses;
 import io.ml.proxy.utils.net.Proxy;
 import io.ml.proxy.utils.net.ProxyConfigList;
 
-import java.net.InetAddress;
-import java.net.InetSocketAddress;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
-import java.util.Random;
 
 public class ProxyServerStartup {
     public static void main(String[] args) {

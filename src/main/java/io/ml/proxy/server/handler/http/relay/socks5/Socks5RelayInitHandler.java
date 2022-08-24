@@ -2,7 +2,6 @@ package io.ml.proxy.server.handler.http.relay.socks5;
 
 import io.ml.proxy.server.config.ProxyServerConfig;
 import io.ml.proxy.server.config.UsernamePasswordAuth;
-import io.ml.proxy.server.handler.codec.EncryptionCodecManage;
 import io.ml.proxy.server.handler.http.HttpAcceptConnectHandler;
 import io.ml.proxy.server.handler.http.HttpRequestInfo;
 import io.netty.channel.Channel;

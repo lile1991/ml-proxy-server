@@ -1,7 +1,6 @@
 package io.ml.proxy.server;
 
 import io.ml.proxy.server.config.ProxyServerConfig;
-import io.ml.proxy.server.config.UsernamePasswordAuth;
 import io.ml.proxy.server.handler.ProxyUnificationServerHandler;
 import io.ml.proxy.server.handler.codec.EncryptionCodecManage;
 import io.netty.bootstrap.ServerBootstrap;
@@ -12,7 +11,6 @@ import io.netty.channel.socket.nio.NioServerSocketChannel;
 import io.netty.handler.timeout.IdleStateHandler;
 import lombok.extern.slf4j.Slf4j;
 
-import java.util.List;
 import java.util.ServiceLoader;
 import java.util.concurrent.atomic.AtomicBoolean;
 
