@@ -61,6 +61,8 @@ public class ProxyConfigList {
                     log.error("Initial proxy IP exception", e);
                     PROXY_LIST_MAP.put(path, Collections.emptyList());
                 }
+            } else {
+                log.warn("The file {} not exists!", proxyFile.getAbsolutePath());
             }
         }
         return Collections.emptyList();
