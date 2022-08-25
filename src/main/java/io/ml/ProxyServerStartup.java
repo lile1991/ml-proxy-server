@@ -34,7 +34,7 @@ public class ProxyServerStartup {
 
         // 如果有配置代理服务器， 就中继过去
         // 支持HTTP、HTTPS 代理协议, 可中继到HTTP、HTTPS、SOCKS5代理服务器
-        List<Proxy> proxies = ProxyConfigList.getProxies("proxy/us100.txt");
+        List<Proxy> proxies = ProxyConfigList.getProxies("proxies/us100.txt");
         for (Proxy proxy : proxies) {
             startRelayServer(proxy, portBegin++);
         }   // End 中继服务器
