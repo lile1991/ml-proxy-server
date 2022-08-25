@@ -126,10 +126,10 @@
             </plugin>
 
             <!--合并jar-->
-            <plugin>
+            <!--<plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-assembly-plugin</artifactId>
-                <!--<executions>
+                <executions>
                     <execution>
                         <id>make-assembly</id>
                         <phase>package</phase>
@@ -137,7 +137,7 @@
                             <goal>single</goal>
                         </goals>
                     </execution>
-                </executions>-->
+                </executions>
                 <configuration>
                     <archive>
                         <manifest>
@@ -146,50 +146,50 @@
                         </manifest>
                     </archive>
                     <descriptorRefs>
-                        <!-- 这个jar-with-dependencies是assembly预先写好的一个，组装描述引用 -->
+                        &lt;!&ndash; 这个jar-with-dependencies是assembly预先写好的一个，组装描述引用 &ndash;&gt;
                         <descriptorRef>jar-with-dependencies</descriptorRef>
                     </descriptorRefs>
-                    <!--工程名-->
+                    &lt;!&ndash;工程名&ndash;&gt;
                     <finalName>${project.build.finalName}</finalName>
                 </configuration>
-            </plugin>
+            </plugin>-->
 
             <!--混淆-->
-            <plugin>
+            <!--<plugin>
                 <groupId>com.github.wvengen</groupId>
                 <artifactId>proguard-maven-plugin</artifactId>
                 <version>2.3.1</version>
-                <!--<executions>
+                <executions>
                     <execution>
                         <phase>package</phase>
                         <goals><goal>proguard</goal></goals>
                     </execution>
-                </executions>-->
+                </executions>
                 <configuration>
                     <proguardVersion>6.2.2</proguardVersion>
-                    <!--需要混淆的jar包或目录-->
+                    &lt;!&ndash;需要混淆的jar包或目录&ndash;&gt;
                     <injar>${project.build.finalName}-jar-with-dependencies.jar</injar>
-                    <!--混淆后的jar包或目录-->
-                    <!--                    <outjar>/fb-client-release/fb-client/target/classes</outjar>-->
+                    &lt;!&ndash;混淆后的jar包或目录&ndash;&gt;
+                    &lt;!&ndash;                    <outjar>/fb-client-release/fb-client/target/classes</outjar>&ndash;&gt;
                     <outjar>${project.build.finalName}-codec.jar</outjar>
                     <obfuscate>true</obfuscate>
                     <proguardInclude>proguard.cfg</proguardInclude>
                     <libs>
-                        <!-- Include main JAVA library required.-->
+                        &lt;!&ndash; Include main JAVA library required.&ndash;&gt;
                         <lib>${java.home}/lib/rt.jar</lib>
-                        <!-- Include crypto JAVA library if necessary.-->
+                        &lt;!&ndash; Include crypto JAVA library if necessary.&ndash;&gt;
                         <lib>${java.home}/lib/jce.jar</lib>
                     </libs>
                 </configuration>
                 <dependencies>
-                    <!-- https://mvnrepository.com/artifact/net.sf.proguard/proguard-base -->
+                    &lt;!&ndash; https://mvnrepository.com/artifact/net.sf.proguard/proguard-base &ndash;&gt;
                     <dependency>
                         <groupId>net.sf.proguard</groupId>
                         <artifactId>proguard-base</artifactId>
                         <version>6.2.2</version>
                     </dependency>
                 </dependencies>
-            </plugin>
+            </plugin>-->
         </plugins>
     </build>
 </project>
