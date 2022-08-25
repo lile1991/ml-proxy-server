@@ -18,7 +18,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
 public class ProxyServer {
 
     private final AtomicBoolean running = new AtomicBoolean(false);
-    public static EncryptionCodecManage encryptionCodecManage;
+    public static volatile EncryptionCodecManage encryptionCodecManage;
 
     /**
      * 启动代理服务器
@@ -46,8 +46,14 @@ public class ProxyServer {
                     serverConfig.getRelayServerConfig().getRelayProtocol(), serverConfig.getRelayServerConfig().getEncryptionProtocol());
         }
 
-        ServiceLoader<EncryptionCodecManage> encryptionCodecManageServiceLoader = ServiceLoader.load(EncryptionCodecManage.class);
-        encryptionCodecManage = encryptionCodecManageServiceLoader.iterator().next();
+        if(encryptionCodecManage == null) {
+            synchronized (this) {
+                if(encryptionCodecManage == null) {
+                    ServiceLoader<EncryptionCodecManage> encryptionCodecManageServiceLoader = ServiceLoader.load(EncryptionCodecManage.class);
+                    encryptionCodecManage = encryptionCodecManageServiceLoader.iterator().hasNext() ? encryptionCodecManageServiceLoader.iterator().next() : new EncryptionCodecManage();
+                }
+            }
+        }
 
         // GlobalChannelManage globalChannelManage = new GlobalChannelManage();
         serverBootstrap.group(bossGroup, workerGroup)
