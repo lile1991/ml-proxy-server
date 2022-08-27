@@ -35,11 +35,13 @@
             <groupId>io.netty</groupId>
             <artifactId>netty-tcnative-boringssl-static</artifactId>
             <version>${netty-tcnative.version}</version>
+            <optional>true</optional>
         </dependency>
         <dependency>
             <groupId>io.netty</groupId>
             <artifactId>netty-tcnative</artifactId>
             <version>${netty-tcnative.version}</version>
+            <optional>true</optional>
         </dependency>
 
 
