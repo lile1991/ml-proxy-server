@@ -2,11 +2,17 @@ package io.ml.proxy.server.handler.http;
 
 import io.ml.proxy.server.config.ProxyServerConfig;
 import io.ml.proxy.server.config.UsernamePasswordAuth;
+import io.ml.proxy.utils.io.FileUtils;
+import io.netty.buffer.ByteBuf;
 import io.netty.channel.*;
 import io.netty.handler.codec.http.*;
 import io.netty.util.Attribute;
 import io.netty.util.AttributeKey;
 import lombok.extern.slf4j.Slf4j;
+
+import java.net.InetSocketAddress;
+import java.nio.charset.Charset;
+import java.nio.charset.StandardCharsets;
 
 /**
  * 接收代理请求
@@ -37,6 +43,17 @@ public class HttpAcceptConnectHandler extends ChannelInboundHandlerAdapter {
     public void channelRead(ChannelHandlerContext ctx, Object msg) throws Exception {
         log.debug("Read: {}\r\n{}", msg, ctx.channel());
         HttpRequest request = (HttpRequest) msg;
+
+        if(isLocalToLocal(ctx.channel())) {
+            // Response to local html
+            String responseBody = "Server listening at " + ctx.channel().localAddress() + "...";
+            ByteBuf buffer = ctx.alloc().buffer();
+            buffer.writeCharSequence(responseBody, StandardCharsets.UTF_8);
+            DefaultFullHttpResponse httpResponse = new DefaultFullHttpResponse(request.protocolVersion(), HttpResponseStatus.OK, buffer);
+            ctx.channel().writeAndFlush(httpResponse);
+            return;
+        }
+
         String proxyAuthorization = request.headers().get(HttpHeaderNames.PROXY_AUTHORIZATION.toString());
         if(serverConfig.isNeedAuthorization()) {
             if(proxyAuthorization == null || proxyAuthorization.isEmpty()) {
@@ -63,6 +80,12 @@ public class HttpAcceptConnectHandler extends ChannelInboundHandlerAdapter {
         // 移除自己
         ctx.pipeline().remove(ctx.name());
         ctx.fireChannelRead(msg);
+    }
+
+    private boolean isLocalToLocal(Channel channel) {
+        InetSocketAddress localSocketAddress = (InetSocketAddress) channel.localAddress();
+        InetSocketAddress remoteSocketAddress = (InetSocketAddress) channel.remoteAddress();
+        return localSocketAddress.getHostName().equals(remoteSocketAddress.getHostName());
     }
 
 
