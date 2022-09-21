@@ -38,9 +38,10 @@ public class ProxyConfigList {
 
             if(proxyFile.exists()) {
                 try (InputStream resourceAsStream = new FileInputStream(proxyFile)) {
-                    List<String> socks5ProxyList = IOUtils.readLines(resourceAsStream, "UTF-8");
-                    List<Proxy> proxies = socks5ProxyList.stream().map(socks5Proxy -> {
+                    List<String> proxyList = IOUtils.readLines(resourceAsStream, "UTF-8");
+                    List<Proxy> proxies = proxyList.stream().map(socks5Proxy -> {
                         String[] split = socks5Proxy.split(":");
+                        // SOCKS5/HTTPS/HTTP
                         String protocol = split[0];
                         String hostname = split[1];
                         int port = Integer.parseInt(split[2]);
