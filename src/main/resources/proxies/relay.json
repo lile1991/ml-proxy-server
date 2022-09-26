@@ -1,0 +1,47 @@
+[
+	{
+		"proxyProtocols": [
+			"HTTP"
+		],
+		"port": 40000,
+		"usernamePasswordAuth": null,
+		"relayPropertiesList": [
+			{
+				"usernamePasswordAuth": {
+					"username": "hl-1",
+					"password": "hl888888",
+					"usernameAndPassword": "hl-1:hl888888"
+				},
+				"relayProtocol": "SOCKS5",
+				"encryptionProtocol": null,
+				"relayNetAddress": {
+					"remoteHost": "104.227.13.36",
+					"remotePort": 8595
+				},
+				"relayUsernamePasswordAuth": {
+					"username": "ynmfeirt",
+					"password": "gufle6psmz2w",
+					"usernameAndPassword": "ynmfeirt:gufle6psmz2w"
+				}
+			},
+			{
+				"usernamePasswordAuth": {
+					"username": "hl-2",
+					"password": "hl888888",
+					"usernameAndPassword": "hl-2:hl888888"
+				},
+				"relayProtocol": "SOCKS5",
+				"encryptionProtocol": null,
+				"relayNetAddress": {
+					"remoteHost": "45.72.53.174",
+					"remotePort": 6210
+				},
+				"relayUsernamePasswordAuth": {
+					"username": "ynmfeirt",
+					"password": "gufle6psmz2w",
+					"usernameAndPassword": "ynmfeirt:gufle6psmz2w"
+				}
+			}
+		]
+	}
+]

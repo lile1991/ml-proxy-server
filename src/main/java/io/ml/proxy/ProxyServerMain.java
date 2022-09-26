@@ -1,33 +1,69 @@
 package io.ml.proxy;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.JavaType;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import io.ml.proxy.config.properties.ProxyServerProperties;
 import io.ml.proxy.config.properties.RelayProperties;
 import io.ml.proxy.server.ProxyServer;
 import io.ml.proxy.server.config.*;
+import io.ml.proxy.utils.io.FileUtils;
 import io.ml.proxy.utils.lang.StringUtils;
-import io.ml.proxy.utils.net.Proxy;
-import io.netty.util.internal.StringUtil;
 import lombok.extern.slf4j.Slf4j;
 
+import javax.lang.model.type.ArrayType;
+import java.io.File;
+import java.io.IOException;
 import java.net.InetAddress;
 import java.net.InetSocketAddress;
 import java.net.UnknownHostException;
+import java.nio.charset.Charset;
+import java.nio.charset.StandardCharsets;
 import java.util.*;
 import java.util.stream.Collectors;
 
 @Slf4j
 public class ProxyServerMain {
-    public static void main(String[] args) throws UnknownHostException {
-        // 加载配置
-        List<ProxyServerProperties> proxyServerPropertiesList = loadProxyServerProperties();
+    public static void main(String[] args) throws IOException {
+        // 1. 加载配置
+        // List<ProxyServerProperties> proxyServerPropertiesList = loadProxyServerProperties();
+        File proxies = new File("proxies");
+        if(!proxies.exists()) {
+            System.out.println("代理配置目录不存在: " + proxies.getAbsolutePath());
+            return;
+        }
+        List<File> fileList = null;
+        {
+            File[] files = proxies.listFiles();
+            if (files != null) {
+                fileList = Arrays.stream(files).filter(f -> f.getName().endsWith(".json")).collect(Collectors.toList());
+            }
+        }
+        if(fileList == null || fileList.isEmpty()) {
+            System.out.println("没有可用的代理配置: " + proxies.getAbsolutePath());
+            return;
+        }
 
-        // 配置服务器
+        // 2. 读取配置
+        List<ProxyServerProperties> proxyServerPropertiesList = new ArrayList<>();
+        ObjectMapper objectMapper = new ObjectMapper();
+        JavaType javaType = objectMapper.getTypeFactory().constructParametricType(ArrayList.class, ProxyServerProperties.class);
+        for(File file: fileList) {
+            String json = FileUtils.readFileToString(file, StandardCharsets.UTF_8);
+
+            List<ProxyServerProperties> proxyServerProperties = objectMapper.readValue(json, javaType);
+            if(proxyServerProperties != null && !proxyServerProperties.isEmpty()) {
+                proxyServerPropertiesList.addAll(proxyServerProperties);
+            }
+        }
+
+        // 3. 配置服务器
         List<ProxyServerConfig> proxyServerConfigList = new ArrayList<>();
         for(ProxyServerProperties proxyServerProperties: proxyServerPropertiesList) {
             proxyServerConfigList.add(toProxyServerConfig(proxyServerProperties));
         }
 
-        // 启动服务器
+        // 4. 启动服务器
         ProxyServer proxyServer = new ProxyServer();
         proxyServerConfigList.forEach(proxyServer::start);
     }
