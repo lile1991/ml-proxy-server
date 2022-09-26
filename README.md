@@ -78,12 +78,12 @@ proxyServerConfig.setBossGroupThreads(5);
 proxyServerConfig.setWorkerGroupThreads(10);
 
 // 配置真实代理服务器， 中继到SOCKS5服务
-RelayServerConfig relayServerConfig = new RelayServerConfig();
-relayServerConfig.setRelayProtocol(ProxyProtocolEnum.SOCKS5);
-relayServerConfig.setRelayNetAddress(new NetAddress("rolayxy.io", 8888));
+RelayServerConfig relayConfig = new RelayServerConfig();
+relayConfig.setRelayProtocol(ProxyProtocolEnum.SOCKS5);
+relayConfig.setRelayNetAddress(new NetAddress("rolayxy.io", 8888));
 // 真实代理服务器的用户名密码
-relayServerConfig.setRelayUsernamePasswordAuth(new UsernamePasswordAuth("abcd", "1111111"));
-proxyServerConfig.setRelayServerConfig(relayServerConfig);
+relayConfig.setRelayUsernamePasswordAuth(new UsernamePasswordAuth("abcd", "1111111"));
+proxyServerConfig.setRelayServerConfig(relayConfig);
 
 // 启动中继服务
 proxyServer.start(proxyServerConfig);

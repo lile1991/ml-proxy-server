@@ -10,6 +10,10 @@ import java.util.*;
 
 @ToString
 public class ProxyServerConfig {
+    @Setter
+    @Getter
+    /** 绑定的本地IP+端口 */
+    private SocketAddress localAddress;
     /** 绑定的端口 */
     @Setter
     @Getter
@@ -32,9 +36,6 @@ public class ProxyServerConfig {
     @Getter
     protected int workerGroupThreads;
 
-    @Setter
-    @Getter
-    private SocketAddress localAddress;
 
     /** 代理鉴权 */
     @Getter
@@ -54,7 +55,7 @@ public class ProxyServerConfig {
     /** 中继服务配置 */
     @Setter
     @Getter
-    private RelayServerConfig relayServerConfig;
+    private Map<UsernamePasswordAuth, RelayConfig> relayConfigMap;
 
     public void setUsernamePasswordAuths(List<UsernamePasswordAuth> usernamePasswordAuths) {
         this.usernamePasswordAuths = usernamePasswordAuths;
@@ -73,5 +74,9 @@ public class ProxyServerConfig {
 
     public UsernamePasswordAuth getUsernamePasswordAuth(String basicAuthorization) {
         return usernamePasswordAuthMap == null ? null : usernamePasswordAuthMap.get(basicAuthorization);
+    }
+
+    public RelayConfig getRelayConfig(UsernamePasswordAuth usernamePasswordAuth) {
+        return relayConfigMap == null ? null : relayConfigMap.get(usernamePasswordAuth);
     }
 }

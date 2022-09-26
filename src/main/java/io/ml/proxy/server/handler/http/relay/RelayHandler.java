@@ -41,15 +41,16 @@ public class RelayHandler extends ChannelInboundHandlerAdapter {
     @Override
     public void channelRead(ChannelHandlerContext ctx, Object msg) throws Exception {
         HttpRequest request = (HttpRequest) msg;
-
         ctx.pipeline().remove(ctx.name());
 
-        RelayServerConfig relayServerConfig = serverConfig.getRelayServerConfig();
-
         Attribute<UsernamePasswordAuth> authAttribute = ctx.channel().attr(HttpAcceptConnectHandler.AUTH_ATTRIBUTE_KEY);
-        NetAddress relayNetAddress = relayServerConfig.getRelayNetAddress(authAttribute.get());
+        UsernamePasswordAuth usernamePasswordAuth = authAttribute.get();
 
-        ReplayRuleConfig replayRuleConfig = serverConfig.getRelayServerConfig().getReplayRuleConfig();
+        RelayConfig relayConfig = serverConfig.getRelayConfig(usernamePasswordAuth);
+
+        NetAddress relayNetAddress = relayConfig.getRelayNetAddress();
+
+        ReplayRuleConfig replayRuleConfig = relayConfig.getReplayRuleConfig();
         if(isRedirect(replayRuleConfig, request)) {
             HttpConnectToHostHandler httpConnectToHostHandler = new HttpConnectToHostHandler(serverConfig);
             ctx.pipeline().addLast(httpConnectToHostHandler);
@@ -58,20 +59,19 @@ public class RelayHandler extends ChannelInboundHandlerAdapter {
             return;
         }
 
-
-            // 连接目标代理并响应200
+        // 连接目标代理并响应200
         if(request.method() == HttpMethod.CONNECT) {
-            connectTargetProxy(ctx, request).addListener((ChannelFutureListener) future -> {
+            connectTargetProxy(ctx, request, relayConfig).addListener((ChannelFutureListener) future -> {
                 if(future.isSuccess()) {
                     Channel clientChannel = future.channel();
                     // 连接成功
                     log.debug("Successfully connected to {}!\r\n{}", clientChannel.remoteAddress(), clientChannel);
 
-                    switch (serverConfig.getRelayServerConfig().getRelayProtocol()) {
+                    switch (relayConfig.getRelayProtocol()) {
                         case HTTP:
                         case HTTPS: {
                             // 设置远程代理服务器密码
-                            UsernamePasswordAuth relayUsernamePasswordAuth = relayServerConfig.getRelayUsernamePasswordAuth(authAttribute.get());
+                            UsernamePasswordAuth relayUsernamePasswordAuth = relayConfig.getRelayUsernamePasswordAuth();
                             if (relayUsernamePasswordAuth == null) {
                                 request.headers().remove(HttpHeaderNames.PROXY_AUTHORIZATION.toString());
                             } else {
@@ -89,7 +89,7 @@ public class RelayHandler extends ChannelInboundHandlerAdapter {
                         }
                         case SOCKS5: {
                             // Socks5 initial request
-                            UsernamePasswordAuth relayUsernamePasswordAuth = relayServerConfig.getRelayUsernamePasswordAuth(authAttribute.get());
+                            UsernamePasswordAuth relayUsernamePasswordAuth = relayConfig.getRelayUsernamePasswordAuth();
                             DefaultSocks5InitialRequest socks5InitialRequest = new DefaultSocks5InitialRequest(relayUsernamePasswordAuth == null ? Socks5AuthMethod.NO_AUTH : Socks5AuthMethod.PASSWORD);
                             log.debug("Write socks5InitialRequest to {}\r\b{}", clientChannel.remoteAddress(), clientChannel);
                             clientChannel.writeAndFlush(socks5InitialRequest);
@@ -110,7 +110,7 @@ public class RelayHandler extends ChannelInboundHandlerAdapter {
         }
 
         // 连接目标代理
-        connectTargetProxy(ctx, request).addListener((ChannelFutureListener) future -> {
+        connectTargetProxy(ctx, request, relayConfig).addListener((ChannelFutureListener) future -> {
             if(future.isSuccess()) {
                 Channel clientChannel = future.channel();
                 log.debug("Successfully connected to {}!\r\n{}", clientChannel.remoteAddress(), clientChannel);
@@ -119,11 +119,11 @@ public class RelayHandler extends ChannelInboundHandlerAdapter {
                 ctx.pipeline().addLast(new ExchangeHandler(serverConfig, clientChannel));
                 log.debug("Add ProxyExchangeHandler to proxy server pipeline.");
 
-                switch (serverConfig.getRelayServerConfig().getRelayProtocol()) {
+                switch (relayConfig.getRelayProtocol()) {
                     case HTTP:
                     case HTTPS: {
                         // 设置远程代理服务器密码
-                        UsernamePasswordAuth relayUsernamePasswordAuth = relayServerConfig.getRelayUsernamePasswordAuth(authAttribute.get());
+                        UsernamePasswordAuth relayUsernamePasswordAuth = relayConfig.getRelayUsernamePasswordAuth();
                         if (relayUsernamePasswordAuth == null) {
                             request.headers().remove(HttpHeaderNames.PROXY_AUTHORIZATION.toString());
                         } else {
@@ -141,7 +141,7 @@ public class RelayHandler extends ChannelInboundHandlerAdapter {
                     }
                     case SOCKS5: {
                         // Socks5 initial request
-                        UsernamePasswordAuth relayUsernamePasswordAuth = relayServerConfig.getRelayUsernamePasswordAuth(authAttribute.get());
+                        UsernamePasswordAuth relayUsernamePasswordAuth = relayConfig.getRelayUsernamePasswordAuth();
                         DefaultSocks5InitialRequest socks5InitialRequest = new DefaultSocks5InitialRequest(relayUsernamePasswordAuth == null ? Socks5AuthMethod.NO_AUTH : Socks5AuthMethod.PASSWORD);
                         log.debug("Write socks5InitialRequest to {}", clientChannel.remoteAddress());
                         clientChannel.writeAndFlush(socks5InitialRequest);
@@ -191,13 +191,10 @@ public class RelayHandler extends ChannelInboundHandlerAdapter {
     /**
      * 连接到目标代理， 支持HTTP与HTTPS协议
      */
-    private ChannelFuture connectTargetProxy(ChannelHandlerContext ctx, HttpRequest request) {
+    private ChannelFuture connectTargetProxy(ChannelHandlerContext ctx, HttpRequest request, RelayConfig relayConfig) {
         httpRequestInfo = new HttpRequestInfo(request);
-        RelayServerConfig relayServerConfig = serverConfig.getRelayServerConfig();
-        ProxyProtocolEnum relayProtocol = relayServerConfig.getRelayProtocol();
-
-        Attribute<UsernamePasswordAuth> authAttribute = ctx.channel().attr(HttpAcceptConnectHandler.AUTH_ATTRIBUTE_KEY);
-        NetAddress relayNetAddress = relayServerConfig.getRelayNetAddress(authAttribute.get());
+        ProxyProtocolEnum relayProtocol = relayConfig.getRelayProtocol();
+        NetAddress relayNetAddress = relayConfig.getRelayNetAddress();
 
         Bootstrap bootstrap = new Bootstrap();
         bootstrap.group(ctx.channel().eventLoop())
@@ -211,8 +208,8 @@ public class RelayHandler extends ChannelInboundHandlerAdapter {
                 ;
         switch (relayProtocol) {
             case HTTP:
-            case HTTPS: bootstrap.handler(new HttpRelayInitHandler(ctx.channel(), serverConfig, httpRequestInfo)); break;
-            case SOCKS5: bootstrap.handler(new Socks5RelayInitHandler(ctx.channel(), serverConfig, httpRequestInfo)); break;
+            case HTTPS: bootstrap.handler(new HttpRelayInitHandler(ctx.channel(), serverConfig, relayConfig, httpRequestInfo)); break;
+            case SOCKS5: bootstrap.handler(new Socks5RelayInitHandler(ctx.channel(), serverConfig, relayConfig, httpRequestInfo)); break;
             default:
                 ByteBuf responseBody = ctx.alloc().buffer();
                 responseBody.writeCharSequence("Unsupported relay protocol " + relayProtocol, StandardCharsets.UTF_8);

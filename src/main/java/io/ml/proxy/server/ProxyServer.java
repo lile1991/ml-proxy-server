@@ -12,6 +12,7 @@ import io.netty.handler.timeout.IdleStateHandler;
 import lombok.extern.slf4j.Slf4j;
 
 import java.net.InetSocketAddress;
+import java.util.Map;
 import java.util.ServiceLoader;
 import java.util.concurrent.atomic.AtomicBoolean;
 
@@ -37,15 +38,17 @@ public class ProxyServer {
 
         if(serverConfig.getLocalAddress() != null) {
             log.debug("The server local address: {}", serverConfig.getLocalAddress());
-        }
-        if(serverConfig.getRelayServerConfig() == null) {
-            log.debug("Proxy server bind to port: {}, the proxy protocol: {}, encryption method: {}", serverConfig.getPort(), serverConfig.getProxyProtocols(), serverConfig.getEncryptionProtocol());
         } else {
-            log.debug("Relay server bind to port: {}, " +
+            log.debug("The server bind port: {}", serverConfig.getPort());
+        }
+        if(serverConfig.getRelayConfigMap() == null || serverConfig.getRelayConfigMap().isEmpty()) {
+            log.debug("Proxy server, the proxy protocol: {}, encryption method: {}", serverConfig.getProxyProtocols(), serverConfig.getEncryptionProtocol());
+        } else {
+            log.debug("Relay server, " +
                             "the proxy protocol: {}, encryption method: {}; " +
-                            "relay to protocol: {}, encryption method: {}", serverConfig.getPort(),
+                            "the relay config: {}",
                     serverConfig.getProxyProtocols(), serverConfig.getEncryptionProtocol(),
-                    serverConfig.getRelayServerConfig().getRelayProtocol(), serverConfig.getRelayServerConfig().getEncryptionProtocol());
+                    serverConfig.getRelayConfigMap());
         }
 
         if(encryptionCodecManage == null) {

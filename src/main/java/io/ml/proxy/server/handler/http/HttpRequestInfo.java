@@ -1,5 +1,6 @@
 package io.ml.proxy.server.handler.http;
 
+import io.ml.proxy.utils.lang.StringUtils;
 import io.netty.handler.codec.http.HttpMethod;
 import io.netty.handler.codec.http.HttpRequest;
 import lombok.AllArgsConstructor;
@@ -32,6 +33,14 @@ public class HttpRequestInfo {
         } else if(host.contains(":")) {
             port = Integer.parseInt(host.split(":")[1]);
             host = host.split(":")[0];
+        }
+
+        if(StringUtils.isBlack(host)) {
+            host = request.headers().get("Host");
+            if(host.contains(":")) {
+                port = Integer.parseInt(host.split(":")[1]);
+                host = host.split(":")[0];
+            }
         }
 
         this.remoteHost = host;

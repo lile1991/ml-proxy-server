@@ -2,7 +2,6 @@ package io.ml.proxy.server.handler.http;
 
 import io.ml.proxy.server.config.ProxyServerConfig;
 import io.ml.proxy.server.config.UsernamePasswordAuth;
-import io.ml.proxy.utils.io.FileUtils;
 import io.netty.buffer.ByteBuf;
 import io.netty.channel.*;
 import io.netty.handler.codec.http.*;
@@ -11,7 +10,6 @@ import io.netty.util.AttributeKey;
 import lombok.extern.slf4j.Slf4j;
 
 import java.net.InetSocketAddress;
-import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
 
 /**
@@ -43,8 +41,9 @@ public class HttpAcceptConnectHandler extends ChannelInboundHandlerAdapter {
     public void channelRead(ChannelHandlerContext ctx, Object msg) throws Exception {
         log.debug("Read: {}\r\n{}", msg, ctx.channel());
         HttpRequest request = (HttpRequest) msg;
+        HttpRequestInfo httpRequestInfo = new HttpRequestInfo(request);
 
-        if(isLocalToLocal(ctx.channel())) {
+        if(isAccessLocalServer(ctx.channel(), httpRequestInfo)) {
             // Response to local html
             String responseBody = "Server listening at " + ctx.channel().localAddress() + "...";
             ByteBuf buffer = ctx.alloc().buffer();
@@ -82,10 +81,16 @@ public class HttpAcceptConnectHandler extends ChannelInboundHandlerAdapter {
         ctx.fireChannelRead(msg);
     }
 
-    private boolean isLocalToLocal(Channel channel) {
+    /**
+     * 是否访问本地服务器
+     * @param channel
+     * @param httpRequestInfo
+     * @return
+     */
+    private boolean isAccessLocalServer(Channel channel, HttpRequestInfo httpRequestInfo) {
         InetSocketAddress localSocketAddress = (InetSocketAddress) channel.localAddress();
         InetSocketAddress remoteSocketAddress = (InetSocketAddress) channel.remoteAddress();
-        return localSocketAddress.getHostName().equals(remoteSocketAddress.getHostName());
+        return localSocketAddress.getAddress().getHostAddress().equals(remoteSocketAddress.getAddress().getHostAddress()) && localSocketAddress.getAddress().getHostAddress().equals(httpRequestInfo.getRemoteHost());
     }
 
 

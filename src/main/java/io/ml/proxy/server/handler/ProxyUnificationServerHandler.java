@@ -127,7 +127,7 @@ public class ProxyUnificationServerHandler extends ChannelInboundHandlerAdapter 
                 .addLast(new HttpObjectAggregator(serverConfig.getHttpObjectAggregatorMaxContentLength()))
                 .addLast(new HttpAcceptConnectHandler(serverConfig));
 
-        if(serverConfig.getRelayServerConfig() == null) {
+        if(serverConfig.getRelayConfigMap() == null || serverConfig.getRelayConfigMap().isEmpty()) {
             ctx.pipeline().addLast(new HttpConnectToHostHandler(serverConfig));
         } else {
             ctx.pipeline().addLast(new RelayHandler(serverConfig));
