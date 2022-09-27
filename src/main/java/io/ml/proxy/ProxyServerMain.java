@@ -24,10 +24,23 @@ public class ProxyServerMain {
     public static void main(String[] args) throws IOException {
         // 1. 加载配置
         // List<ProxyServerProperties> proxyServerPropertiesList = loadProxyServerProperties();
+
         File proxies = new File("ml-proxies");
+        // 2. 读取配置
+        List<ProxyServerProperties> proxyServerPropertiesList = loadProxyServerProperties(proxies);
+        if(proxyServerPropertiesList == null) {
+            System.out.println(proxies.getAbsolutePath() + " 下没有代理配置信息， 不启动任何服务。");
+            return ;
+        }
+
+        // 3. 启动服务
+        startAll(proxyServerPropertiesList);
+    }
+
+    private static List<ProxyServerProperties> loadProxyServerProperties(File proxies) throws IOException {
         if(!proxies.exists()) {
-            System.out.println("代理配置目录不存在: " + proxies.getAbsolutePath());
-            return;
+            log.error("代理配置目录不存在: " + proxies.getAbsolutePath());
+            return null;
         }
         List<File> fileList = null;
         {
@@ -37,11 +50,11 @@ public class ProxyServerMain {
             }
         }
         if(fileList == null || fileList.isEmpty()) {
-            System.out.println("没有可用的代理配置: " + proxies.getAbsolutePath());
-            return;
+            log.error("没有可用的代理配置: " + proxies.getAbsolutePath());
+            return null;
         }
 
-        // 2. 读取配置
+
         List<ProxyServerProperties> proxyServerPropertiesList = new ArrayList<>();
         ObjectMapper objectMapper = new ObjectMapper();
         JavaType javaType = objectMapper.getTypeFactory().constructParametricType(ArrayList.class, ProxyServerProperties.class);
@@ -53,14 +66,22 @@ public class ProxyServerMain {
                 proxyServerPropertiesList.addAll(proxyServerProperties);
             }
         }
+        return proxyServerPropertiesList;
+    }
 
-        // 3. 配置服务器
+    /**
+     * 启动所有服务器
+     * @param proxyServerPropertiesList 服务器配置
+     * @throws UnknownHostException 找不到主机
+     */
+    public static void startAll(List<ProxyServerProperties> proxyServerPropertiesList) throws UnknownHostException {
+        // 转换配置信息
         List<ProxyServerConfig> proxyServerConfigList = new ArrayList<>();
         for(ProxyServerProperties proxyServerProperties: proxyServerPropertiesList) {
             proxyServerConfigList.add(toProxyServerConfig(proxyServerProperties));
         }
 
-        // 4. 启动服务器
+        // 启动服务器
         ProxyServer proxyServer = new ProxyServer();
         proxyServerConfigList.forEach(proxyServer::start);
     }
@@ -100,7 +121,7 @@ public class ProxyServerMain {
         return proxyServerPropertiesList;
     }
 
-    private static ProxyServerConfig toProxyServerConfig(ProxyServerProperties proxyServerProperties) throws UnknownHostException {
+    public static ProxyServerConfig toProxyServerConfig(ProxyServerProperties proxyServerProperties) throws UnknownHostException {
         // 配置代理服务器， 支持HTTP、HTTPS协议， 后续也会支持SOCKS5
         ProxyServerConfig proxyServerConfig = new ProxyServerConfig();
         proxyServerConfig.setProxyProtocols(proxyServerProperties.getProxyProtocols());
