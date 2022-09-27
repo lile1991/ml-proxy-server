@@ -1,5 +1,6 @@
 package io.ml.proxy.config.properties;
 
+import io.ml.proxy.server.config.EncryptionProtocolEnum;
 import io.ml.proxy.server.config.ProxyProtocolEnum;
 import io.ml.proxy.server.config.UsernamePasswordAuth;
 import lombok.Getter;
@@ -14,6 +15,8 @@ import java.util.List;
 @ToString
 public class ProxyServerProperties {
     protected List<ProxyProtocolEnum> proxyProtocols = Collections.singletonList(ProxyProtocolEnum.HTTP);
+    /** 加密协议 */
+    private EncryptionProtocolEnum encryptionProtocol;
     private String host;
     private int port;
     /** 代理用户名密码 */

@@ -1,6 +1,5 @@
 package io.ml.proxy;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JavaType;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import io.ml.proxy.config.properties.ProxyServerProperties;
@@ -11,13 +10,11 @@ import io.ml.proxy.utils.io.FileUtils;
 import io.ml.proxy.utils.lang.StringUtils;
 import lombok.extern.slf4j.Slf4j;
 
-import javax.lang.model.type.ArrayType;
 import java.io.File;
 import java.io.IOException;
 import java.net.InetAddress;
 import java.net.InetSocketAddress;
 import java.net.UnknownHostException;
-import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
 import java.util.*;
 import java.util.stream.Collectors;
@@ -27,7 +24,7 @@ public class ProxyServerMain {
     public static void main(String[] args) throws IOException {
         // 1. 加载配置
         // List<ProxyServerProperties> proxyServerPropertiesList = loadProxyServerProperties();
-        File proxies = new File("proxies");
+        File proxies = new File("ml-proxies");
         if(!proxies.exists()) {
             System.out.println("代理配置目录不存在: " + proxies.getAbsolutePath());
             return;
@@ -104,7 +101,6 @@ public class ProxyServerMain {
     }
 
     private static ProxyServerConfig toProxyServerConfig(ProxyServerProperties proxyServerProperties) throws UnknownHostException {
-
         // 配置代理服务器， 支持HTTP、HTTPS协议， 后续也会支持SOCKS5
         ProxyServerConfig proxyServerConfig = new ProxyServerConfig();
         proxyServerConfig.setProxyProtocols(proxyServerProperties.getProxyProtocols());
@@ -114,6 +110,7 @@ public class ProxyServerMain {
         } else {
             proxyServerConfig.setPort(proxyServerProperties.getPort());
         }
+        proxyServerConfig.setEncryptionProtocol(proxyServerProperties.getEncryptionProtocol());
         proxyServerConfig.setBossGroupThreads(5);
         proxyServerConfig.setWorkerGroupThreads(10);
 
@@ -126,7 +123,7 @@ public class ProxyServerMain {
             proxyServerConfig.setRelayConfigMap(relayConfigMap);
 
             relayPropertiesList.forEach(relayProperties -> {
-                // 配置真实代理服务器， 中继到SOCKS5服务
+                // 配置真实代理服务器， 中继到实际代理服务
                 RelayConfig relayConfig = new RelayConfig();
                 relayConfig.setRelayProtocol(relayProperties.getRelayProtocol());
                 relayConfig.setRelayNetAddress(relayProperties.getRelayNetAddress());
@@ -135,6 +132,7 @@ public class ProxyServerMain {
                 ReplayRuleConfig replayRuleConfig = new ReplayRuleConfig();
                 // replayRuleConfig.setDirectHosts(Arrays.asList("weixin", "qq", "tencent", "alibaba", "aliyun", "microsoft", "baidu", "hao123"));
                 relayConfig.setReplayRuleConfig(replayRuleConfig);
+                relayConfig.setEncryptionProtocol(relayProperties.getEncryptionProtocol());
                 relayConfigMap.put(relayProperties.getUsernamePasswordAuth(), relayConfig);
 
                 usernamePasswordAuths.add(relayProperties.getUsernamePasswordAuth());
