@@ -108,6 +108,9 @@ public class HttpConnectToHostHandler extends ChannelInboundHandlerAdapter {
                 ctx.pipeline().addLast(httpExchangeHandler);
                 log.debug("Add ProxyExchangeHandler to proxy server pipeline.");
 
+                // 删掉代理鉴权消息头
+                request.headers().remove(HttpHeaderNames.PROXY_AUTHORIZATION);
+
                 // 转发消息给目标服务器
                 log.debug("WriteAndFlush msg: {}", request.method() + " " + request.uri());
                 if(serverConfig.isCodecMsg()) {
