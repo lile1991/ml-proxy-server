@@ -167,7 +167,10 @@ public class HttpConnectToHostHandler extends ChannelInboundHandlerAdapter {
 
         if(localAddress != null) {
             // Bind local net address
+            log.debug("remoteAddress={}", localAddress);
             bootstrap.remoteAddress(localAddress);
+            log.debug("localAddress={}", localAddress);
+            bootstrap.localAddress(localAddress);
         }
 
         return bootstrap.connect(httpRequestInfo.getRemoteHost(), httpRequestInfo.getRemotePort());
