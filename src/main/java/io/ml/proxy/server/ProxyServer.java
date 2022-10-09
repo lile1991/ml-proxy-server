@@ -3,6 +3,7 @@ package io.ml.proxy.server;
 import io.ml.proxy.server.config.ProxyServerConfig;
 import io.ml.proxy.server.handler.ProxyUnificationServerHandler;
 import io.ml.proxy.server.handler.codec.EncryptionCodecManage;
+import io.ml.proxy.utils.lang.StringUtils;
 import io.netty.bootstrap.ServerBootstrap;
 import io.netty.channel.Channel;
 import io.netty.channel.ChannelInitializer;
@@ -62,7 +63,7 @@ public class ProxyServer {
                             "the proxy protocol: {}, encryption method: {}; " +
                             "the relay config: {}",
                     serverConfig.getProxyProtocols(), serverConfig.getEncryptionProtocol(),
-                    serverConfig.getRelayConfigMap());
+                    StringUtils.abbreviate(serverConfig.getRelayConfigMap().toString(), 120));
         }
 
         if(encryptionCodecManage == null) {
