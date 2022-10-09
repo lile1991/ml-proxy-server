@@ -9,10 +9,10 @@ import io.netty.channel.ChannelInitializer;
 import io.netty.channel.nio.NioEventLoopGroup;
 import io.netty.channel.socket.nio.NioServerSocketChannel;
 import io.netty.handler.timeout.IdleStateHandler;
+import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
 
 import java.net.InetSocketAddress;
-import java.util.Map;
 import java.util.ServiceLoader;
 import java.util.concurrent.atomic.AtomicBoolean;
 
@@ -22,12 +22,30 @@ public class ProxyServer {
     private final AtomicBoolean running = new AtomicBoolean(false);
     public static volatile EncryptionCodecManage encryptionCodecManage;
 
+    @Setter
+    private ProxyServerConfig serverConfig;
+
+    public ProxyServer() {
+    }
+
+    public ProxyServer(ProxyServerConfig serverConfig) {
+        this.serverConfig = serverConfig;
+    }
+
     /**
      * 启动代理服务器
      *  绑定端口
      * @param serverConfig 服务器配置
      */
-    public void start(ProxyServerConfig serverConfig) {
+    public static void start(ProxyServerConfig serverConfig) {
+        new ProxyServer(serverConfig).start();
+    }
+
+    /**
+     * 启动代理服务器
+     *  绑定端口
+     */
+    public void start() {
         if(!running.compareAndSet(false, true)) {
             log.error("Proxy server already running!");
         }
@@ -36,11 +54,7 @@ public class ProxyServer {
         NioEventLoopGroup bossGroup = new NioEventLoopGroup(serverConfig.getBossGroupThreads());
         NioEventLoopGroup workerGroup = new NioEventLoopGroup(serverConfig.getWorkerGroupThreads());
 
-        if(serverConfig.getLocalAddress() != null) {
-            log.debug("The server local address: {}", serverConfig.getLocalAddress());
-        } else {
-            log.debug("The server bind port: {}", serverConfig.getPort());
-        }
+        log.debug("The server bind port: {}", serverConfig.getPort());
         if(serverConfig.getRelayConfigMap() == null || serverConfig.getRelayConfigMap().isEmpty()) {
             log.debug("Proxy server, the proxy protocol: {}, encryption method: {}", serverConfig.getProxyProtocols(), serverConfig.getEncryptionProtocol());
         } else {
@@ -80,7 +94,7 @@ public class ProxyServer {
                             .addLast(new ProxyUnificationServerHandler(serverConfig))
                         ;
                     }
-                }).bind(serverConfig.getLocalAddress() == null ? new InetSocketAddress(serverConfig.getPort()) : serverConfig.getLocalAddress());
+                }).bind(new InetSocketAddress(serverConfig.getPort()));
     }
 
     public boolean isRunning() {

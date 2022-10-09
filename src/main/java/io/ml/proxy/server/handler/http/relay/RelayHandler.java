@@ -18,6 +18,7 @@ import io.netty.handler.codec.socksx.v5.Socks5AuthMethod;
 import io.netty.util.Attribute;
 import lombok.extern.slf4j.Slf4j;
 
+import java.net.SocketAddress;
 import java.nio.charset.StandardCharsets;
 import java.util.Base64;
 import java.util.List;
@@ -47,6 +48,7 @@ public class RelayHandler extends ChannelInboundHandlerAdapter {
         UsernamePasswordAuth usernamePasswordAuth = authAttribute.get();
 
         RelayConfig relayConfig = serverConfig.getRelayConfig(usernamePasswordAuth);
+        SocketAddress localAddress = serverConfig.getLocalAddress(usernamePasswordAuth);
 
         NetAddress relayNetAddress = relayConfig.getRelayNetAddress();
 
@@ -61,7 +63,7 @@ public class RelayHandler extends ChannelInboundHandlerAdapter {
 
         // 连接目标代理并响应200
         if(request.method() == HttpMethod.CONNECT) {
-            connectTargetProxy(ctx, request, relayConfig).addListener((ChannelFutureListener) future -> {
+            connectTargetProxy(ctx, request, localAddress, relayConfig).addListener((ChannelFutureListener) future -> {
                 if(future.isSuccess()) {
                     Channel clientChannel = future.channel();
                     // 连接成功
@@ -110,7 +112,7 @@ public class RelayHandler extends ChannelInboundHandlerAdapter {
         }
 
         // 连接目标代理
-        connectTargetProxy(ctx, request, relayConfig).addListener((ChannelFutureListener) future -> {
+        connectTargetProxy(ctx, request, localAddress, relayConfig).addListener((ChannelFutureListener) future -> {
             if(future.isSuccess()) {
                 Channel clientChannel = future.channel();
                 log.debug("Successfully connected to {}!\r\n{}", clientChannel.remoteAddress(), clientChannel);
@@ -191,7 +193,7 @@ public class RelayHandler extends ChannelInboundHandlerAdapter {
     /**
      * 连接到目标代理， 支持HTTP与HTTPS协议
      */
-    private ChannelFuture connectTargetProxy(ChannelHandlerContext ctx, HttpRequest request, RelayConfig relayConfig) {
+    private ChannelFuture connectTargetProxy(ChannelHandlerContext ctx, HttpRequest request, SocketAddress localAddress, RelayConfig relayConfig) {
         httpRequestInfo = new HttpRequestInfo(request);
         ProxyProtocolEnum relayProtocol = relayConfig.getRelayProtocol();
         NetAddress relayNetAddress = relayConfig.getRelayNetAddress();
@@ -217,9 +219,9 @@ public class RelayHandler extends ChannelInboundHandlerAdapter {
                 return ctx.writeAndFlush(defaultFullHttpResponse).addListener(ChannelFutureListener.CLOSE);
         }
 
-        if(serverConfig.getLocalAddress() != null) {
+        if(localAddress != null) {
             // Bind local net address
-            bootstrap.remoteAddress(serverConfig.getLocalAddress());
+            bootstrap.remoteAddress(localAddress);
         }
 
         return bootstrap.connect(relayNetAddress.getRemoteHost(), relayNetAddress.getRemotePort());

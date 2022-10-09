@@ -3,13 +3,11 @@ package io.ml.proxy.server.handler.http.relay.socks5;
 import io.ml.proxy.server.config.ProxyServerConfig;
 import io.ml.proxy.server.config.RelayConfig;
 import io.ml.proxy.server.config.UsernamePasswordAuth;
-import io.ml.proxy.server.handler.http.HttpAcceptConnectHandler;
 import io.ml.proxy.server.handler.http.HttpRequestInfo;
 import io.netty.channel.Channel;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.ChannelInboundHandlerAdapter;
 import io.netty.handler.codec.socksx.v5.*;
-import io.netty.util.Attribute;
 import lombok.extern.slf4j.Slf4j;
 
 @Slf4j

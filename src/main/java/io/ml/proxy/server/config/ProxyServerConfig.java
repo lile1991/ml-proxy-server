@@ -10,10 +10,6 @@ import java.util.*;
 
 @ToString
 public class ProxyServerConfig {
-    @Setter
-    @Getter
-    /** 绑定的本地IP+端口 */
-    private SocketAddress localAddress;
     /** 绑定的端口 */
     @Setter
     @Getter
@@ -40,8 +36,12 @@ public class ProxyServerConfig {
     /** 代理鉴权 */
     @Getter
     private List<UsernamePasswordAuth> usernamePasswordAuths;
+    private Map<String, UsernamePasswordAuth> usernamePasswordAuthsBase64Map;
 
-    private Map<String, UsernamePasswordAuth> usernamePasswordAuthMap;
+    /** 绑定的本地IP+端口 */
+    @Setter
+    @Getter
+    private Map<UsernamePasswordAuth, SocketAddress> localAddressMap;
 
     /** 代理协议 */
     @Setter
@@ -60,10 +60,10 @@ public class ProxyServerConfig {
     public void setUsernamePasswordAuths(List<UsernamePasswordAuth> usernamePasswordAuths) {
         this.usernamePasswordAuths = usernamePasswordAuths;
         if(usernamePasswordAuths != null) {
-            usernamePasswordAuthMap = new HashMap<>();
+            usernamePasswordAuthsBase64Map = new HashMap<>();
             usernamePasswordAuths.forEach(usernamePasswordAuth -> {
                 String usernamePassword = usernamePasswordAuth.getUsername() + ":" + usernamePasswordAuth.getPassword();
-                usernamePasswordAuthMap.put("Basic " + Base64.getEncoder().encodeToString(usernamePassword.getBytes(StandardCharsets.UTF_8)), usernamePasswordAuth);
+                usernamePasswordAuthsBase64Map.put("Basic " + Base64.getEncoder().encodeToString(usernamePassword.getBytes(StandardCharsets.UTF_8)), usernamePasswordAuth);
             });
         }
     }
@@ -73,10 +73,13 @@ public class ProxyServerConfig {
     }
 
     public UsernamePasswordAuth getUsernamePasswordAuth(String basicAuthorization) {
-        return usernamePasswordAuthMap == null ? null : usernamePasswordAuthMap.get(basicAuthorization);
+        return usernamePasswordAuthsBase64Map == null ? null : usernamePasswordAuthsBase64Map.get(basicAuthorization);
     }
 
     public RelayConfig getRelayConfig(UsernamePasswordAuth usernamePasswordAuth) {
         return relayConfigMap == null ? null : relayConfigMap.get(usernamePasswordAuth);
+    }
+    public SocketAddress getLocalAddress(UsernamePasswordAuth usernamePasswordAuth) {
+        return localAddressMap == null ? null : localAddressMap.get(usernamePasswordAuth);
     }
 }

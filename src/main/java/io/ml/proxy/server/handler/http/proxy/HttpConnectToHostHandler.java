@@ -1,6 +1,7 @@
 package io.ml.proxy.server.handler.http.proxy;
 
 import io.ml.proxy.server.config.ProxyServerConfig;
+import io.ml.proxy.server.config.UsernamePasswordAuth;
 import io.ml.proxy.server.handler.ExchangeHandler;
 import io.ml.proxy.server.handler.http.HttpAcceptConnectHandler;
 import io.ml.proxy.server.handler.http.HttpRequestInfo;
@@ -13,8 +14,10 @@ import io.netty.handler.codec.http.*;
 import io.netty.handler.ssl.SslContext;
 import io.netty.handler.ssl.SslContextBuilder;
 import io.netty.handler.ssl.util.InsecureTrustManagerFactory;
+import io.netty.util.Attribute;
 import lombok.extern.slf4j.Slf4j;
 
+import java.net.SocketAddress;
 import java.security.cert.X509Certificate;
 
 /**
@@ -42,9 +45,11 @@ public class HttpConnectToHostHandler extends ChannelInboundHandlerAdapter {
 
         ctx.pipeline().remove(ctx.name());
 
+        SocketAddress localAddress = getLocalAddress(ctx.channel());
+
         // 连接目标网站并响应200
         if(request.method() == HttpMethod.CONNECT) {
-            connectTargetServer(ctx, request).addListener((ChannelFutureListener) future -> {
+            connectTargetServer(ctx, localAddress, request).addListener((ChannelFutureListener) future -> {
                 if(future.isSuccess()) {
                     Channel clientChannel = future.channel();
                     // 连接成功， 移除ConnectionHandler, 添加ExchangeHandler
@@ -92,7 +97,7 @@ public class HttpConnectToHostHandler extends ChannelInboundHandlerAdapter {
         }
 
         // 连接目标网站并发送消息
-        connectTargetServer(ctx, request).addListener((ChannelFutureListener) future -> {
+        connectTargetServer(ctx, localAddress, request).addListener((ChannelFutureListener) future -> {
             if(future.isSuccess()) {
                 Channel clientChannel = future.channel();
 
@@ -139,7 +144,13 @@ public class HttpConnectToHostHandler extends ChannelInboundHandlerAdapter {
         });
     }
 
-    private ChannelFuture connectTargetServer(ChannelHandlerContext ctx, HttpRequest request) {
+    private SocketAddress getLocalAddress(Channel channel) {
+        Attribute<UsernamePasswordAuth> authAttribute = channel.attr(HttpAcceptConnectHandler.AUTH_ATTRIBUTE_KEY);
+        UsernamePasswordAuth usernamePasswordAuth = authAttribute.get();
+        return serverConfig.getLocalAddress(usernamePasswordAuth);
+    }
+
+    private ChannelFuture connectTargetServer(ChannelHandlerContext ctx, SocketAddress localAddress, HttpRequest request) {
         httpRequestInfo = new HttpRequestInfo(request);
 
         Bootstrap bootstrap = new Bootstrap();
@@ -154,9 +165,9 @@ public class HttpConnectToHostHandler extends ChannelInboundHandlerAdapter {
                 .handler(new HttpConnectToHostInitHandler(ctx.channel(), serverConfig, httpRequestInfo))
                 ;
 
-        if(serverConfig.getLocalAddress() != null) {
+        if(localAddress != null) {
             // Bind local net address
-            bootstrap.remoteAddress(serverConfig.getLocalAddress());
+            bootstrap.remoteAddress(localAddress);
         }
 
         return bootstrap.connect(httpRequestInfo.getRemoteHost(), httpRequestInfo.getRemotePort());

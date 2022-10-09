@@ -2,6 +2,7 @@ package io.ml.proxy;
 
 import com.fasterxml.jackson.databind.JavaType;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import io.ml.proxy.config.properties.ProxyProperties;
 import io.ml.proxy.config.properties.ProxyServerProperties;
 import io.ml.proxy.config.properties.RelayProperties;
 import io.ml.proxy.server.ProxyServer;
@@ -14,6 +15,7 @@ import java.io.File;
 import java.io.IOException;
 import java.net.InetAddress;
 import java.net.InetSocketAddress;
+import java.net.SocketAddress;
 import java.net.UnknownHostException;
 import java.nio.charset.StandardCharsets;
 import java.util.*;
@@ -82,8 +84,7 @@ public class ProxyServerMain {
         }
 
         // 启动服务器
-        ProxyServer proxyServer = new ProxyServer();
-        proxyServerConfigList.forEach(proxyServer::start);
+        proxyServerConfigList.forEach(ProxyServer::start);
     }
 
     private static List<ProxyServerProperties> loadProxyServerProperties() {
@@ -126,17 +127,35 @@ public class ProxyServerMain {
         ProxyServerConfig proxyServerConfig = new ProxyServerConfig();
         proxyServerConfig.setProxyProtocols(proxyServerProperties.getProxyProtocols());
         proxyServerConfig.setCodecMsg(false);
-        if(StringUtils.isNotBlack(proxyServerProperties.getHost())) {
-            proxyServerConfig.setLocalAddress(new InetSocketAddress(InetAddress.getByName(proxyServerProperties.getHost()), proxyServerProperties.getPort()));
-        } else {
-            proxyServerConfig.setPort(proxyServerProperties.getPort());
-        }
         proxyServerConfig.setEncryptionProtocol(proxyServerProperties.getEncryptionProtocol());
         proxyServerConfig.setBossGroupThreads(5);
         proxyServerConfig.setWorkerGroupThreads(10);
 
+        if(proxyServerProperties.getProxyPropertiesList() != null) {
+            // 代理模式
+            List<UsernamePasswordAuth> usernamePasswordAuths = new ArrayList<>();
+            List<ProxyProperties> proxyPropertiesList = proxyServerProperties.getProxyPropertiesList();
+            Map<UsernamePasswordAuth, SocketAddress> localAddressMap = new HashMap<>();
+            for (ProxyProperties proxyProperties : proxyPropertiesList) {
+                if (proxyProperties.getUsernamePasswordAuth() != null) {
+                    usernamePasswordAuths.add(proxyProperties.getUsernamePasswordAuth());
+                }
+
+                if (StringUtils.isNotBlack(proxyProperties.getHost())) {
+                    localAddressMap.put(proxyProperties.getUsernamePasswordAuth(), new InetSocketAddress(InetAddress.getByName(proxyProperties.getHost()), proxyServerProperties.getPort()));
+                } else {
+                    proxyServerConfig.setPort(proxyServerProperties.getPort());
+                }
+            }
+
+            proxyServerConfig.setUsernamePasswordAuths(usernamePasswordAuths);
+            proxyServerConfig.setLocalAddressMap(localAddressMap);
+            return proxyServerConfig;
+        }
+
+        // 中继模式
         List<UsernamePasswordAuth> usernamePasswordAuths = new ArrayList<>();
-        usernamePasswordAuths.add(proxyServerProperties.getUsernamePasswordAuth());
+        proxyServerConfig.setPort(proxyServerProperties.getPort());
 
         List<RelayProperties> relayPropertiesList = proxyServerProperties.getRelayPropertiesList();
         if(relayPropertiesList != null && !relayPropertiesList.isEmpty()) {
