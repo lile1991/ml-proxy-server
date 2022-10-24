@@ -84,7 +84,7 @@ public class ProxyConfigList {
         String hostname = split[0];
         int port = Integer.parseInt(split[1]);
 
-        return new Proxy(ProxyProtocolEnum.valueOf(protocol), null, hostname, port, username, password);
+        return new Proxy(ProxyProtocolEnum.enumOf(protocol), null, hostname, port, username, password);
     }
 
     /**
